@@ -1,14 +1,20 @@
 using Infrastructure;
-using Microsoft.AspNetCore.OpenApi;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
+using WebApi.Endpoints;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
-//builder.Services.ConfigureHttpJsonOptions(options =>
-//{
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
-//});
+builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -38,162 +44,11 @@ app.UseSwaggerUI(options =>
     options.RoutePrefix = string.Empty;
 });
 
-var customerApi = app.MapGroup("/customer").WithTags("Customers").WithOpenApi();
+app.MapPaymentEndpoints();
 
-customerApi.MapGet("/{id}", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-customerApi.MapPut("/{id}", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-customerApi.MapPost("/", () =>
-{
-    throw new NotImplementedException();
-});
-
-customerApi.MapDelete("/{id}", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-var ordersApi = app.MapGroup("/order").WithTags("Orders").WithOpenApi();
-
-ordersApi.MapGet("/", () =>
-{
-    throw new NotImplementedException();
-});
-
-ordersApi.MapPost("/", () =>
-{
-    throw new NotImplementedException();
-});
-
-ordersApi.MapPut("/{id}", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-ordersApi.MapGet("/{id}", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-ordersApi.MapDelete("/{id}", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-var paymentApi = app.MapGroup("/payment").WithTags("Payments");
-
-paymentApi.MapPost("/", () =>
-{
-    throw new NotImplementedException();
-});
-
-paymentApi.MapGet("/validate", () =>
-{
-    throw new NotImplementedException();
-});
-
-var reservationApi = app.MapGroup("/reservation").WithTags("Reservations");
-
-reservationApi.MapGet("/", () =>
-{
-    throw new NotImplementedException();
-});
-
-reservationApi.MapPost("/", () =>
-{
-    throw new NotImplementedException();
-});
-
-reservationApi.MapPut("/{id}", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-reservationApi.MapGet("/{id}", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-reservationApi.MapDelete("/{id}", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-var inventoryApi = app.MapGroup("/inventory").WithTags("Inventory");
-
-inventoryApi.MapGet("/{itemId}/availability", (Guid itemId) =>
-{
-    throw new NotImplementedException();
-});
-
-inventoryApi.MapPut("/{itemId}", (Guid itemId) =>
-{
-    throw new NotImplementedException();
-});
-
-var employeeApi = app.MapGroup("/employee").WithTags("Employees");
-
-employeeApi.MapGet("/", () =>
-{
-    throw new NotImplementedException();
-});
-
-employeeApi.MapPost("/{id}/loghours", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-employeeApi.MapGet("/{id}/schedule", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-employeeApi.MapPut("/{id}/schedule", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-var loyaltyApi = app.MapGroup("/loyalty").WithTags("Loyalty program");
-
-loyaltyApi.MapPost("/enroll", () =>
-{
-    throw new NotImplementedException();
-});
-
-loyaltyApi.MapPost("/{id}/applyBenefits", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-var marketingApi = app.MapGroup("/marketing").WithTags("Marketing");
-
-marketingApi.MapPost("/discounts/apply", () =>
-{
-    throw new NotImplementedException();
-});
-
-marketingApi.MapPost("/promotions", (Guid id) =>
-{
-    throw new NotImplementedException();
-});
-
-var notificationsApi = app.MapGroup("/notifications").WithTags("Notifications"); ;
-
-notificationsApi.MapPost("/{customerId}/send", (Guid customerId) =>
-{
-    throw new NotImplementedException();
-});
-
-notificationsApi.MapGet("/{customerId}", (Guid customerId) =>
-{
-    throw new NotImplementedException();
-});
+using var scope = app.Services.CreateScope();
+using var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+ctx.Database.Migrate();
 
 app.Run();
+
