@@ -2,6 +2,7 @@
 using Domain.Enums;
 using Domain.Models;
 using Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApi.Endpoints;
 
@@ -10,6 +11,52 @@ public static class OrderEndpoints
     public static void MapOrderEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("order").WithTags("Orders");
+
+        group.MapGet(string.Empty, (AppDbContext ctx, int offset = 0, int limit = 100) =>
+        {
+            var orders = ctx.Orders
+                .Skip(offset)
+                .Take(limit)
+                .ToList();
+
+            var orderIds = orders.Select(o => o.Id).ToHashSet();
+
+            var orderProductLUT = ctx
+                .OrderProducts
+                .Where(x => orderIds.Contains(x.OrderId))
+                .GroupBy(x => x.OrderId)
+                .ToDictionary(x => x.Key, x => x.ToList());
+
+            var orderProductIds = orderProductLUT
+                .Values
+                .SelectMany(orderProducts => orderProducts.Select(x => x.ProductId))
+                .ToHashSet();
+
+            var productLUT = ctx
+                .Products
+                .Where(x => orderProductIds.Contains(x.Id))
+                .ToDictionary(x => x.Id);
+
+            var productViewModelLUT = orderProductLUT.ToDictionary(
+                kVPair => kVPair.Key,
+                kvPair => kvPair.Value.Select(orderProduct =>
+                {
+                    var product = productLUT[orderProduct.ProductId];
+                    return new OrderProductViewModel()
+                    {
+                        ProductId = product.Id,
+                        Amount = orderProduct.Amount,
+                        Description = product.Description,
+                        Name = product.Name,
+                    };
+                }));
+
+            return Results.Ok(orders.Select(x =>
+            {
+                var productViewModels = productViewModelLUT[x.Id];
+                return x.ToViewModel(productViewModels);
+            }));
+        });
 
         group.MapGet("{id}", (AppDbContext ctx, Guid id) =>
         {
@@ -23,9 +70,25 @@ public static class OrderEndpoints
             {
                 var orderProducts = ctx.OrderProducts
                     .Where(x => x.OrderId == id)
-                    .Select(x => x.ToViewModel());
+                    .ToList();
 
-                return Results.Ok(result.ToViewModel(orderProducts));
+                var orderProductIds = orderProducts
+                    .Select(x => x.ProductId)
+                    .ToHashSet();
+
+                var productLUT = ctx.Products
+                    .Where(x => orderProductIds.Contains(x.Id))
+                    .ToDictionary(x => x.Id);
+
+                var productViewModels = orderProducts.Select(x => new OrderProductViewModel()
+                {
+                    Amount = x.Amount,
+                    Description = productLUT[x.ProductId].Description,
+                    Name = productLUT[x.ProductId].Name,
+                    ProductId = x.ProductId
+                });
+
+                return Results.Ok(result.ToViewModel(productViewModels));
             }
         });
 
@@ -55,7 +118,7 @@ public static class OrderEndpoints
             return Results.Ok(order.ToViewModel(Enumerable.Empty<OrderProductViewModel>()));
         });
 
-        group.MapPatch("{orderId}", (AppDbContext ctx, Guid orderId, OrderPatchModel orderPatchModel) =>
+        group.MapPut("{orderId}", (AppDbContext ctx, Guid orderId, OrderPatchModel orderPatchModel) =>
         {
             var errors = new Dictionary<string, string[]>();
 
@@ -69,45 +132,48 @@ public static class OrderEndpoints
                 errors["Order Product Amount error"] = ["Amount of products added to an order must be positive."];
             }
 
-            if (orderPatchModel.OrderProducts.Any(x => !ctx.Products.Any(y => y.Id == x.ProductId)))
+            if (orderPatchModel.OrderProducts.Any(x => !ctx.Products.Any(y => y.Name == x.Name)))
             {
-                errors["Order Product Id error"] = ["Product does not exist."];
+                errors["Product error"] = ["Some product(s) does not exist."];
             }
 
             if (errors.Any())
                 return Results.ValidationProblem(errors);
 
-            var orderProducts = new List<OrderProduct>();
+            ctx.OrderProducts.Where(x => x.OrderId == orderId).ExecuteDelete();
 
+            var productLUT = orderPatchModel
+                .OrderProducts
+                .Select(x => ctx.Products.First(y => y.Name == x.Name))
+                .ToDictionary(x => x.Name, x => x);
+
+            var orderProducts = new List<OrderProduct>();
             foreach (var model in orderPatchModel.OrderProducts)
             {
-                var orderProductResult = ctx.OrderProducts
-                    .Where(x => x.OrderId == orderId)
-                    .FirstOrDefault(x => x.ProductId == model.ProductId);
-
-                if (orderProductResult is null)
+                var product = ctx.Products.First(x => x.Name == model.Name);
+                var orderProduct = new OrderProduct()
                 {
-                    var orderProduct = new OrderProduct()
-                    {
-                        OrderId = orderId,
-                        ProductId = model.ProductId,
-                        Amount = model.Amount,
-                    };
-
-                    orderProducts.Add(orderProduct);
-
-                    ctx.OrderProducts.Add(orderProduct);
-                }
-                else
-                {
-                    orderProductResult.Amount = model.Amount;
-
-                    orderProducts.Add(orderProductResult);
-                }
+                    OrderId = orderId,
+                    ProductId = productLUT[model.Name].Id,
+                    Amount = model.Amount,
+                };
+                orderProducts.Add(orderProduct);
+                ctx.OrderProducts.Add(orderProduct);
             }
 
-            var orderProductViews = orderProducts.Select(x => x.ToViewModel());
-            return Results.Ok(orderResult.ToViewModel(orderProductViews));
+            ctx.SaveChanges();
+
+            var productViewModels = orderPatchModel
+                .OrderProducts
+                .Select(x => new OrderProductViewModel()
+                {
+                    Name = x.Name,
+                    ProductId = productLUT[x.Name].Id,
+                    Amount = x.Amount,
+                    Description = productLUT[x.Name].Description,
+                });
+
+            return Results.Ok(orderResult.ToViewModel(productViewModels));
         });
     }
 }

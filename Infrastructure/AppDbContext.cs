@@ -17,7 +17,9 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Product>().HasKey(x => x.Id);
+        var product = modelBuilder.Entity<Product>();
+        product.HasKey(x => x.Id);
+        product.HasIndex(x => x.Name).IsUnique();
 
         var payment = modelBuilder.Entity<Payment>();
         payment.HasKey(x => x.Id);

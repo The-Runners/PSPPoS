@@ -8,11 +8,19 @@ public class OrderPostModel
     public Guid? CustomerId { get; init; }
 }
 
-public record OrderProductModel(Guid ProductId, int Amount);
+public record OrderProductPatchModel(string Name, int Amount);
 
 public class OrderPatchModel
 {
-    public required IEnumerable<OrderProductModel> OrderProducts { get; init; }
+    public required IEnumerable<OrderProductPatchModel> OrderProducts { get; init; }
+}
+
+public class OrderProductViewModel
+{
+    public Guid ProductId { get; init; }
+    public required string Name { get; init; }
+    public string? Description { get; init; }
+    public int Amount { get; init; }
 }
 
 public class OrderViewModel
