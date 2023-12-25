@@ -16,7 +16,7 @@ public static class PaymentEndpoints
 
             if (result is null)
             {
-                return Results.BadRequest($"Payment with id: `{id}` does not exist.");
+                return Results.NotFound($"Payment with id: `{id}` does not exist.");
             }
             else
             {
