@@ -22,7 +22,6 @@ public static class ProductEndpoints
             {
                 return Results.Ok(result.ToViewModel());
             }
-
         });
 
         group.MapPost(string.Empty, (AppDbContext ctx, ProductPostModel productPostModel) =>

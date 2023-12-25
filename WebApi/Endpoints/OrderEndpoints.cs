@@ -48,6 +48,7 @@ public static class OrderEndpoints
                         Amount = orderProduct.Amount,
                         Description = product.Description,
                         Name = product.Name,
+                        UnitPrice = product.Price
                     };
                 }));
 
@@ -85,7 +86,8 @@ public static class OrderEndpoints
                     Amount = x.Amount,
                     Description = productLUT[x.ProductId].Description,
                     Name = productLUT[x.ProductId].Name,
-                    ProductId = x.ProductId
+                    ProductId = x.ProductId,
+                    UnitPrice = productLUT[x.ProductId].Price
                 });
 
                 return Results.Ok(result.ToViewModel(productViewModels));
@@ -109,6 +111,8 @@ public static class OrderEndpoints
                 Id = Guid.NewGuid(),
                 Status = OrderStatus.Created,
                 CustomerId = orderPostModel.CustomerId,
+                Price = 0,
+                Discount = 0
             };
 
             ctx.Orders.Add(order);
@@ -137,6 +141,16 @@ public static class OrderEndpoints
                 errors["Product error"] = ["Some product(s) does not exist."];
             }
 
+            if (orderPatchModel.Discount is < 0 or > 1)
+            {
+                errors["Discount error"] = ["Discount value must be in range [0, 1]."];
+            }
+
+            if (!ctx.Customers.Any(x => x.Id == orderPatchModel.CustomerId))
+            {
+                errors["CustomerId error"] = [$"Customer with id: `{orderPatchModel.CustomerId}` does not exist."];
+            }
+
             if (errors.Any())
                 return Results.ValidationProblem(errors);
 
@@ -161,6 +175,24 @@ public static class OrderEndpoints
                 ctx.OrderProducts.Add(orderProduct);
             }
 
+            orderResult.CustomerId = orderPatchModel.CustomerId;
+            var customer = ctx.Customers.First(x => x.Id == orderPatchModel.CustomerId);
+
+            // Aggregate full price of products (TODO: add services)
+            var fullPrice = orderPatchModel
+                .OrderProducts
+                .Select(x => x.Amount * productLUT[x.Name].Price)
+                .DefaultIfEmpty(0)
+                .Sum();
+
+            orderResult.Discount = orderPatchModel.Discount;
+
+            // Apply whichever discount is larger
+            var appliedDiscount = Math.Max(orderPatchModel.Discount, customer.LoyaltyDiscount);
+
+            // Price after discount
+            orderResult.Price = (1m - appliedDiscount) * fullPrice;
+
             ctx.SaveChanges();
 
             var productViewModels = orderPatchModel
@@ -171,6 +203,7 @@ public static class OrderEndpoints
                     ProductId = productLUT[x.Name].Id,
                     Amount = x.Amount,
                     Description = productLUT[x.Name].Description,
+                    UnitPrice = productLUT[x.Name].Price
                 });
 
             return Results.Ok(orderResult.ToViewModel(productViewModels));
