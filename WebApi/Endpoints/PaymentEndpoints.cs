@@ -1,5 +1,5 @@
 ﻿using Contracts;
-using Domain;
+using Domain.Models;
 using Infrastructure;
 
 namespace WebApi.Endpoints;

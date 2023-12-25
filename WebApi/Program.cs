@@ -45,6 +45,8 @@ app.UseSwaggerUI(options =>
 });
 
 app.MapPaymentEndpoints();
+app.MapOrderEndpoints();
+app.MapProductEndpoints();
 
 using var scope = app.Services.CreateScope();
 using var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
