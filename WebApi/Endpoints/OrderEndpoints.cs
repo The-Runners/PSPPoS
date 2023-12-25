@@ -157,6 +157,9 @@ public static class OrderEndpoints
                 errors["Order Tip error"] = ["Order tip must be non-negative."];
             }
 
+            if (orderResult.Status is not OrderStatus.Created)
+                errors["Order status error"] = [$"Order details can only be updated while status is not {nameof(OrderStatus.Ordered)}"];
+
             if (errors.Any())
                 return Results.ValidationProblem(errors);
 
@@ -200,7 +203,7 @@ public static class OrderEndpoints
                 : Math.Max(orderPatchModel.Discount, customer.LoyaltyDiscount);
 
             // Price after discount
-            orderResult.Price = orderResult.Tip + (1m - appliedDiscount) * fullPrice;
+            orderResult.Price = decimal.Round(orderResult.Tip + (1m - appliedDiscount) * fullPrice, 2);
 
             ctx.SaveChanges();
 

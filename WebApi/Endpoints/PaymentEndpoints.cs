@@ -1,4 +1,5 @@
 ﻿using Contracts;
+using Domain.Enums;
 using Domain.Models;
 using Infrastructure;
 
@@ -27,12 +28,37 @@ public static class PaymentEndpoints
 
         group.MapPost(string.Empty, (AppDbContext ctx, PaymentPostModel paymentPostModel) =>
         {
+            var errors = new Dictionary<string, string[]>();
+
             if (paymentPostModel.Amount <= 0)
+                errors["Payment amount error"] = ["Payment amount must be positive."];
+
+            var order = ctx.Orders.FirstOrDefault(x => x.Id == paymentPostModel.OrderId);
+
+            if (order is null)
+                errors["Order order"] = [$"Order with id {paymentPostModel.OrderId} does not exist"];
+
+            var payments = ctx.Payments.Where(x => x.OrderId == order.Id).ToList();
+
+            var paidSum = payments.Select(x => x.Amount).DefaultIfEmpty(0).Sum();
+
+            if (paidSum == order.Price)
+                errors["Order paid for error"] = ["Order is already paid for"];
+
+            if (order.Price - paidSum < paymentPostModel.Amount)
+                errors["Invalid payment amount error"] = ["Sum of payment amounts has to be equal to the order price."];
+
+            if (errors.Any())
+                return Results.ValidationProblem(errors);
+
+            if (paidSum is 0 && paymentPostModel.Amount != order.Price)
             {
-                return Results.ValidationProblem(new Dictionary<string, string[]>()
-                {
-                    { "Payment amount error", [ "Payment amount must be positive." ] }
-                });
+                order.Status = OrderStatus.Ordered;
+            }
+
+            else if (paymentPostModel.Amount + paidSum == order.Price)
+            {
+                order.Status = OrderStatus.Paid;
             }
 
             var payment = new Payment()
