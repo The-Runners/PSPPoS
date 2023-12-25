@@ -14,6 +14,7 @@ public class OrderPatchModel
 {
     public Guid? CustomerId { get; init; }
     public decimal Discount { get; init; }
+    public decimal Tip { get; init; }
     public required IEnumerable<OrderProductPatchModel> OrderProducts { get; init; }
 }
 
@@ -33,6 +34,7 @@ public class OrderViewModel
     public OrderStatus Status { get; init; }
     public decimal Discount { get; init; }
     public decimal TotalPrice { get; init; }
+    public decimal Tip { get; init; }
     public required IEnumerable<OrderProductViewModel> OrderProducts { get; init; }
 }
 
@@ -45,6 +47,7 @@ public static class OrderExtensions
         Status = order.Status,
         OrderProducts = orderProducts,
         Discount = order.Discount,
-        TotalPrice = order.Price
+        TotalPrice = order.Price,
+        Tip = order.Tip,
     };
 }

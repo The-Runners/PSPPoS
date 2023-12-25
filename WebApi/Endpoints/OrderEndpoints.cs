@@ -112,7 +112,8 @@ public static class OrderEndpoints
                 Status = OrderStatus.Created,
                 CustomerId = orderPostModel.CustomerId,
                 Price = 0,
-                Discount = 0
+                Discount = 0,
+                Tip = 0
             };
 
             ctx.Orders.Add(order);
@@ -146,9 +147,14 @@ public static class OrderEndpoints
                 errors["Discount error"] = ["Discount value must be in range [0, 1]."];
             }
 
-            if (!ctx.Customers.Any(x => x.Id == orderPatchModel.CustomerId))
+            if (orderPatchModel.CustomerId is not null && !ctx.Customers.Any(x => x.Id == orderPatchModel.CustomerId))
             {
                 errors["CustomerId error"] = [$"Customer with id: `{orderPatchModel.CustomerId}` does not exist."];
+            }
+
+            if (orderPatchModel.Tip is < 0)
+            {
+                errors["Order Tip error"] = ["Order tip must be non-negative."];
             }
 
             if (errors.Any())
@@ -176,7 +182,7 @@ public static class OrderEndpoints
             }
 
             orderResult.CustomerId = orderPatchModel.CustomerId;
-            var customer = ctx.Customers.First(x => x.Id == orderPatchModel.CustomerId);
+            var customer = ctx.Customers.FirstOrDefault(x => x.Id == orderPatchModel.CustomerId);
 
             // Aggregate full price of products (TODO: add services)
             var fullPrice = orderPatchModel
@@ -185,13 +191,16 @@ public static class OrderEndpoints
                 .DefaultIfEmpty(0)
                 .Sum();
 
+            orderResult.Tip = orderPatchModel.Tip;
             orderResult.Discount = orderPatchModel.Discount;
 
             // Apply whichever discount is larger
-            var appliedDiscount = Math.Max(orderPatchModel.Discount, customer.LoyaltyDiscount);
+            var appliedDiscount = customer is null
+                ? orderPatchModel.Discount
+                : Math.Max(orderPatchModel.Discount, customer.LoyaltyDiscount);
 
             // Price after discount
-            orderResult.Price = (1m - appliedDiscount) * fullPrice;
+            orderResult.Price = orderResult.Tip + (1m - appliedDiscount) * fullPrice;
 
             ctx.SaveChanges();
 
