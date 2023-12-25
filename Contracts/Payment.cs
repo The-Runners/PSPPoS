@@ -1,5 +1,5 @@
-﻿using Domain;
-using Domain.Enums;
+﻿using Domain.Enums;
+using Domain.Models;
 
 namespace Contracts;
 
