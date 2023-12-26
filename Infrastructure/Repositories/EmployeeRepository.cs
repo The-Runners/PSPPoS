@@ -1,42 +1,37 @@
 ﻿using Contracts.DTOs.Employee;
 using Domain.Models;
+using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Infrastructure.Repositories
+namespace Infrastructure.Repositories;
+
+public class EmployeeRepository : IEmployeeRepository
 {
-    public class EmployeeRepository : IEmployeeRepository
+    private readonly AppDbContext _context;
+    private readonly DbSet<Employee> _employees;
+    public EmployeeRepository(AppDbContext context)
     {
-        private readonly AppDbContext _context;
-        private readonly DbSet<Employee> _employees;
-        public EmployeeRepository(AppDbContext context)
-        {
-            _context = context;
-            _employees = _context.Set<Employee>();
-        }
+        _context = context;
+        _employees = _context.Set<Employee>();
+    }
 
-        public void Add(PostEmployee employee)
-        {
-            throw new NotImplementedException();
-        }
+    public EmployeeModelDto GetById(Guid id)
+    {
+        throw new NotImplementedException();
+    }
 
-        public IEnumerable<GetEmployee> GetAll()
-        {
-            throw new NotImplementedException();
-        }
+    public async Task<IEnumerable<EmployeeModelDto>> GetAll()
+    {
+        throw new NotImplementedException();
+    }
 
-        public GetEmployee GetById(Guid id)
-        {
-            throw new NotImplementedException();
-        }
+    public async Task Add(EmployeeCreateDto employee)
+    {
+        throw new NotImplementedException();
+    }
 
-        public void Update(EditEmployee employee)
-        {
-            throw new NotImplementedException();
-        }
+    public async Task Update(EmployeeModelDto employee)
+    {
+        throw new NotImplementedException();
     }
 }

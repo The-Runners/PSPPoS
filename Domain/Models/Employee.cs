@@ -1,9 +1,8 @@
-﻿namespace Domain.Models
+﻿namespace Domain.Models;
+
+public class Employee
 {
-    public class Employee
-    {
-        public Guid Id { get; set; }
-        public TimeOnly WorkStartTime { get; set; }
-        public TimeOnly WorkEndTime { get; set; }
-    }
+    public Guid Id { get; set; }
+    public TimeOnly WorkStartTime { get; set; }
+    public TimeOnly WorkEndTime { get; set; }
 }

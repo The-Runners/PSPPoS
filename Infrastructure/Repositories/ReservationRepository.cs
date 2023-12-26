@@ -1,32 +1,27 @@
 ﻿using Contracts.DTOs.Reservation;
 using Domain.Models;
+using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Infrastructure.Repositories
+namespace Infrastructure.Repositories;
+
+public class ReservationRepository : IReservationRepository
 {
-    public class ReservationRepository : IReservationRepository
+    private readonly AppDbContext _context;
+    private readonly DbSet<Employee> _reservations;
+    public ReservationRepository(AppDbContext context)
     {
-        private readonly AppDbContext _context;
-        private readonly DbSet<Employee> _reservations;
-        public ReservationRepository(AppDbContext context)
-        {
-            _context = context;
-            _reservations = _context.Set<Employee>();
-        }
+        _context = context;
+        _reservations = _context.Set<Employee>();
+    }
 
-        public void AddReservation(PostReservation reservation)
-        {
-            throw new NotImplementedException();
-        }
+    public async Task<IEnumerable<ReservationModelDto>> GetFilteredReservations()
+    {
+        throw new NotImplementedException();
+    }
 
-        public IEnumerable<GetReservation> GetFilteredReservations()
-        {
-            throw new NotImplementedException();
-        }
+    public async Task AddReservation(ReservationCreateDto reservation)
+    {
+        throw new NotImplementedException();
     }
 }

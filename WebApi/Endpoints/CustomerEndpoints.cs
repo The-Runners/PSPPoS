@@ -1,7 +1,6 @@
 ﻿using Contracts;
 using Domain.Models;
 using Infrastructure;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace WebApi.Endpoints;
 
