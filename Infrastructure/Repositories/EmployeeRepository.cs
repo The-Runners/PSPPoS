@@ -15,23 +15,73 @@ public class EmployeeRepository : IEmployeeRepository
         _employees = _context.Set<Employee>();
     }
 
-    public EmployeeModelDto GetById(Guid id)
+    public async Task<EmployeeModelDto?> GetById(Guid id)
     {
-        throw new NotImplementedException();
+        var employee = await _employees.FindAsync(id);
+        if (employee == null)
+        {
+            return null;
+        }
+
+        return new EmployeeModelDto
+        {
+            Id = employee.Id,
+            WorkStartTime = employee.WorkStartTime,
+            WorkEndTime = employee.WorkEndTime,
+        };
     }
 
-    public async Task<IEnumerable<EmployeeModelDto>> GetAll()
+    public IEnumerable<EmployeeModelDto?> GetAll()
     {
-        throw new NotImplementedException();
+        var employees = _employees.ToList();
+        var employeeDtos = new List<EmployeeModelDto>();
+        foreach (var employee in employees)
+        {
+            var employeeDto = new EmployeeModelDto
+            {
+                Id = employee.Id,
+                WorkStartTime = employee.WorkStartTime,
+                WorkEndTime = employee.WorkEndTime,
+            };
+            employeeDtos.Add(employeeDto);
+        }
+
+        return employeeDtos;
     }
 
-    public async Task Add(EmployeeCreateDto employee)
+    public async Task Add(EmployeeCreateDto employeeDto)
     {
-        throw new NotImplementedException();
+        var employee = new Employee()
+        {
+            Id = new Guid(),
+            WorkStartTime = employeeDto.WorkStartTime,
+            WorkEndTime = employeeDto.WorkEndTime,
+        };
+        await _employees.AddAsync(employee);
+        await _context.SaveChangesAsync();
     }
 
-    public async Task Update(EmployeeModelDto employee)
+    public async Task Update(EmployeeModelDto employeeDto)
     {
-        throw new NotImplementedException();
+        var employee = new Employee()
+        {
+            Id = employeeDto.Id,
+            WorkStartTime = employeeDto.WorkStartTime,
+            WorkEndTime = employeeDto.WorkEndTime,
+        };
+        _employees.Update(employee);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task Delete(Guid id)
+    {
+        var employee = await _employees.FindAsync(id);
+        if (employee == null)
+        {
+            return;
+        }
+
+        _employees.Remove(employee);
+        await _context.SaveChangesAsync();
     }
 }

@@ -4,8 +4,9 @@ namespace Infrastructure.Interfaces;
 
 public interface IEmployeeRepository
 {
-    EmployeeModelDto GetById(Guid id);
-    Task<IEnumerable<EmployeeModelDto>> GetAll();
-    Task Add(EmployeeCreateDto employee);
-    Task Update(EmployeeModelDto employee);
+    Task<EmployeeModelDto?> GetById(Guid id);
+    IEnumerable<EmployeeModelDto?> GetAll();
+    Task Add(EmployeeCreateDto employeeDto);
+    Task Update(EmployeeModelDto employeeDto);
+    Task Delete(Guid id);
 }

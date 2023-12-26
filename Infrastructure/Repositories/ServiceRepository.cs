@@ -15,10 +15,15 @@ public class ServiceRepository : IServiceRepository
         _services = _context.Set<Service>();
     }
 
-    public async Task<ServiceModelDto> GetById(Guid id)
+    public async Task<ServiceModelDto?> GetById(Guid id)
     {
         var service = await _services.FindAsync(id);
-        return new ServiceModelDto()
+        if (service == null)
+        {
+            return null;
+        }
+
+        return new ServiceModelDto
         {
             Id = service!.Id,
             Name = service.Name,
@@ -26,13 +31,13 @@ public class ServiceRepository : IServiceRepository
         };
     }
 
-    public IEnumerable<ServiceModelDto> GetAll()
+    public IEnumerable<ServiceModelDto?> GetAll()
     {
         var services = _services.ToList();
         var serviceDtos = new List<ServiceModelDto>();
         foreach (var service in services)
         {
-            var serviceDto = new ServiceModelDto()
+            var serviceDto = new ServiceModelDto
             {
                 Id = service.Id,
                 Name = service.Name,
@@ -71,6 +76,11 @@ public class ServiceRepository : IServiceRepository
     public async Task Delete(Guid id)
     {
         var service = await _services.FindAsync(id);
+        if (service == null)
+        {
+            return;
+        }
+
         _services.Remove(service!);
         await _context.SaveChangesAsync();
     }
