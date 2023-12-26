@@ -15,28 +15,63 @@ public class ServiceRepository : IServiceRepository
         _services = _context.Set<Service>();
     }
 
-    public ServiceModelDto GetById(Guid id)
+    public async Task<ServiceModelDto> GetById(Guid id)
     {
-        throw new NotImplementedException();
+        var service = await _services.FindAsync(id);
+        return new ServiceModelDto()
+        {
+            Id = service!.Id,
+            Name = service.Name,
+            Duration = service.Duration,
+        };
     }
 
-    public async Task<IEnumerable<ServiceModelDto>> GetAll()
+    public IEnumerable<ServiceModelDto> GetAll()
     {
-        throw new NotImplementedException();
+        var services = _services.ToList();
+        var serviceDtos = new List<ServiceModelDto>();
+        foreach (var service in services)
+        {
+            var serviceDto = new ServiceModelDto()
+            {
+                Id = service.Id,
+                Name = service.Name,
+                Duration = service.Duration,
+            };
+            serviceDtos.Add(serviceDto);
+        }
+
+        return serviceDtos;
     }
 
-    public async Task Add(ServiceCreateDto service)
+    public async Task Add(ServiceCreateDto serviceDto)
     {
-        throw new NotImplementedException();
+        var service = new Service
+        {
+            Id = new Guid(),
+            Name = serviceDto.Name,
+            Duration = serviceDto.Duration,
+        };
+        await _services.AddAsync(service);
+        await _context.SaveChangesAsync();
     }
 
-    public async Task Update(ServiceModelDto service)
+    public async Task Update(ServiceModelDto serviceDto)
     {
-        throw new NotImplementedException();
+        var service = new Service
+        {
+            Id = serviceDto.Id,
+            Name = serviceDto.Name,
+            Duration = serviceDto.Duration,
+        };
+        _services.Update(service);
+        await _context.SaveChangesAsync();
     }
 
     public async Task Delete(Guid id)
     {
-        throw new NotImplementedException();
+        var service = await _services.FindAsync(id);
+        _services.Remove(service!);
+        await _context.SaveChangesAsync();
     }
 }
