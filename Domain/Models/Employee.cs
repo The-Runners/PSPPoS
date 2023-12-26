@@ -2,7 +2,9 @@
 
 public class Employee
 {
-    public Guid Id { get; set; }
-    public TimeOnly WorkStartTime { get; set; }
-    public TimeOnly WorkEndTime { get; set; }
+    required public Guid Id { get; set; }
+
+    required public TimeOnly WorkStartTime { get; set; }
+
+    required public TimeOnly WorkEndTime { get; set; }
 }
