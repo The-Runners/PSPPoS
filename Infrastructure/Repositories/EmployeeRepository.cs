@@ -15,10 +15,10 @@ public class EmployeeRepository : IEmployeeRepository
         _employees = _context.Set<Employee>();
     }
 
-    public async Task<EmployeeModelDto?> GetById(Guid id)
+    public async Task<EmployeeModelDto?> GetEmployeeById(Guid id)
     {
         var employee = await _employees.FindAsync(id);
-        if (employee == null)
+        if (employee is null)
         {
             return null;
         }
@@ -31,9 +31,9 @@ public class EmployeeRepository : IEmployeeRepository
         };
     }
 
-    public IEnumerable<EmployeeModelDto?> GetAll()
+    public async Task<IEnumerable<EmployeeModelDto?>> GetAllEmployees()
     {
-        var employees = _employees.ToList();
+        var employees = await _employees.ToListAsync();
         var employeeDtos = new List<EmployeeModelDto>();
         foreach (var employee in employees)
         {
@@ -49,9 +49,9 @@ public class EmployeeRepository : IEmployeeRepository
         return employeeDtos;
     }
 
-    public async Task Add(EmployeeCreateDto employeeDto)
+    public async Task AddEmployee(EmployeeCreateDto employeeDto)
     {
-        var employee = new Employee()
+        var employee = new Employee
         {
             Id = new Guid(),
             WorkStartTime = employeeDto.WorkStartTime,
@@ -61,9 +61,9 @@ public class EmployeeRepository : IEmployeeRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task Update(EmployeeModelDto employeeDto)
+    public async Task UpdateEmployee(EmployeeModelDto employeeDto)
     {
-        var employee = new Employee()
+        var employee = new Employee
         {
             Id = employeeDto.Id,
             WorkStartTime = employeeDto.WorkStartTime,
@@ -73,10 +73,10 @@ public class EmployeeRepository : IEmployeeRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task Delete(Guid id)
+    public async Task DeleteEmployee(Guid id)
     {
         var employee = await _employees.FindAsync(id);
-        if (employee == null)
+        if (employee is null)
         {
             return;
         }

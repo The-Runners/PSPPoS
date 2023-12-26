@@ -15,25 +15,25 @@ public class ServiceRepository : IServiceRepository
         _services = _context.Set<Service>();
     }
 
-    public async Task<ServiceModelDto?> GetById(Guid id)
+    public async Task<ServiceModelDto?> GetServiceById(Guid id)
     {
         var service = await _services.FindAsync(id);
-        if (service == null)
+        if (service is null)
         {
             return null;
         }
 
         return new ServiceModelDto
         {
-            Id = service!.Id,
+            Id = service.Id,
             Name = service.Name,
             Duration = service.Duration,
         };
     }
 
-    public IEnumerable<ServiceModelDto?> GetAll()
+    public async Task<IEnumerable<ServiceModelDto?>> GetAllServices()
     {
-        var services = _services.ToList();
+        var services = await _services.ToListAsync();
         var serviceDtos = new List<ServiceModelDto>();
         foreach (var service in services)
         {
@@ -49,7 +49,7 @@ public class ServiceRepository : IServiceRepository
         return serviceDtos;
     }
 
-    public async Task Add(ServiceCreateDto serviceDto)
+    public async Task AddService(ServiceCreateDto serviceDto)
     {
         var service = new Service
         {
@@ -61,7 +61,7 @@ public class ServiceRepository : IServiceRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task Update(ServiceModelDto serviceDto)
+    public async Task UpdateService(ServiceModelDto serviceDto)
     {
         var service = new Service
         {
@@ -73,10 +73,10 @@ public class ServiceRepository : IServiceRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task Delete(Guid id)
+    public async Task DeleteService(Guid id)
     {
         var service = await _services.FindAsync(id);
-        if (service == null)
+        if (service is null)
         {
             return;
         }

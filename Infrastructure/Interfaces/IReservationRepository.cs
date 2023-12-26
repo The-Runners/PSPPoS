@@ -1,9 +1,13 @@
 ﻿using Contracts.DTOs.Reservation;
+using Domain.Filters;
 
 namespace Infrastructure.Interfaces;
 
 public interface IReservationRepository
 {
-    Task<IEnumerable<ReservationModelDto>> GetFilteredReservations();
-    Task AddReservation(ReservationCreateDto reservation);
+    Task<ReservationModelDto?> GetReservationById(Guid id);
+
+    Task<List<ReservationModelDto>?> GetFilteredReservations(ReservationFilter filter);
+
+    Task AddReservation(ReservationCreateDto reservationDto);
 }

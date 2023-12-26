@@ -4,9 +4,13 @@ namespace Infrastructure.Interfaces;
 
 public interface IServiceRepository
 {
-    Task<ServiceModelDto?> GetById(Guid id);
-    IEnumerable<ServiceModelDto?> GetAll();
-    Task Add(ServiceCreateDto serviceDto);
-    Task Update(ServiceModelDto serviceDto);
-    Task Delete(Guid id);
+    Task<ServiceModelDto?> GetServiceById(Guid id);
+
+    Task<IEnumerable<ServiceModelDto?>> GetAllServices();
+
+    Task AddService(ServiceCreateDto serviceDto);
+
+    Task UpdateService(ServiceModelDto serviceDto);
+
+    Task DeleteService(Guid id);
 }

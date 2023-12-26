@@ -2,6 +2,9 @@
 
 public class ReservationCreateDto
 {
-    public Guid OrderId { get; init; }
-    public Guid ServiceId { get; init; }
+    required public Guid OrderId { get; set; }
+
+    required public Guid ServiceId { get; set; }
+
+    required public DateTime TimeSlot { get; set; }
 }
