@@ -2,11 +2,11 @@
 
 public class Service
 {
-    required public Guid Id { get; init; }
+    public required Guid Id { get; init; }
 
-    required public string Name { get; set; }
+    public required string Name { get; set; }
 
-    required public TimeOnly Duration { get; set; }
+    public required TimeOnly Duration { get; set; }
 
-    required public decimal Price { get; set; }
+    public required decimal Price { get; set; }
 }

@@ -1,22 +1,7 @@
-﻿using Domain.Enums;
+﻿using Contracts.DTOs.Payment;
 using Domain.Models;
 
 namespace Contracts;
-
-public class PaymentPostModel
-{
-    public Guid OrderId { get; init; }
-    public decimal Amount { get; init; }
-    public PaymentType Type { get; init; }
-}
-
-public class PaymentViewModel
-{
-    public Guid Id { get; init; }
-    public Guid OrderId { get; init; }
-    public decimal Amount { get; init; }
-    public PaymentType Type { get; init; }
-}
 
 public static class PaymentModelExtensions
 {

@@ -2,9 +2,12 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
+using Domain.Models;
 using Infrastructure.Interfaces;
 using Infrastructure.Repositories;
 using WebApi.Endpoints;
+using WebApi.Interfaces;
+using WebApi.Services;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -25,8 +28,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
-builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IOrderProductRepository, OrderProductRepository>();
+builder.Services.AddScoped<IGenericRepository<Customer>, CustomerRepository>();
+builder.Services.AddScoped<IGenericRepository<Employee>, EmployeeRepository>();
+builder.Services.AddScoped<IGenericRepository<Order>, OrderRepository>();
+builder.Services.AddScoped<IGenericRepository<Service>, ServiceRepository>();
+
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -51,9 +59,10 @@ app.UseSwaggerUI(options =>
 });
 
 app.MapPaymentEndpoints();
-app.MapOrderEndpoints();
-app.MapProductEndpoints();
-app.MapCustomerEndpoints();
+// Will need fixing
+//app.MapOrderEndpoints();
+//app.MapProductEndpoints();
+//app.MapCustomerEndpoints();
 
 using var scope = app.Services.CreateScope();
 using var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();

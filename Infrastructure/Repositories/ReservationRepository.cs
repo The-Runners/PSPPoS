@@ -44,4 +44,9 @@ public class ReservationRepository : GenericRepository<Reservation>, IReservatio
 
         return reservationDtos;
     }
+
+    public async Task<Reservation?> GetReservationByOrderId(Guid orderId)
+    {
+        return await _reservations.FindAsync(orderId);
+    }
 }

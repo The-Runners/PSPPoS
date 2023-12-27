@@ -2,9 +2,9 @@
 
 public class Customer
 {
-    public Guid Id { get; init; }
+    public required Guid Id { get; init; }
 
-    public decimal LoyaltyDiscount { get; set; }
+    public required decimal LoyaltyDiscount { get; set; }
 
     public DateTimeOffset CreatedAt { get; init; }
 }

@@ -19,7 +19,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return await _table.ToListAsync();
     }
 
-    public async Task<T?> GetById(Guid id)
+    public async Task<T?> GetById(Guid? id)
     {
         return await _table.FindAsync(id);
     }
@@ -38,7 +38,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return entity;
     }
 
-    public async Task Delete(Guid id)
+    public async Task Delete(Guid? id)
     {
         var entity = await _table.FindAsync(id);
         if (entity is null)

@@ -2,11 +2,11 @@
 
 public class Reservation
 {
-    required public Guid Id { get; init; }
+    public required Guid Id { get; init; }
 
-    required public Guid OrderId { get; init; }
+    public required Guid OrderId { get; init; }
 
-    required public Guid ServiceId { get; set; }
+    public required Guid ServiceId { get; set; }
 
-    required public DateTime TimeSlot { get; set; }
+    public required DateTime TimeSlot { get; set; }
 }

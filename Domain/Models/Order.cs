@@ -4,17 +4,17 @@ namespace Domain.Models;
 
 public class Order
 {
-    public Guid Id { get; init; }
+    public required Guid Id { get; init; }
 
     public Guid? CustomerId { get; set; }
 
-    public Guid EmployeeId { get; set; }
+    public required Guid EmployeeId { get; set; }
 
-    public OrderStatus Status { get; set; }
+    public required OrderStatus Status { get; set; }
 
-    public decimal Price { get; set; }
+    public required decimal Price { get; set; }
 
-    public decimal? Discount { get; set; }
+    public required decimal Discount { get; set; }
 
-    public decimal? Tip { get; set; }
+    public required decimal Tip { get; set; }
 }
