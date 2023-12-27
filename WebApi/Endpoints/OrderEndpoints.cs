@@ -8,6 +8,7 @@ namespace WebApi.Endpoints;
 
 public static class OrderEndpoints
 {
+
     public static void MapOrderEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("order").WithTags("Orders");

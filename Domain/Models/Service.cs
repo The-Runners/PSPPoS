@@ -8,4 +8,5 @@ public class Service
 
     required public TimeOnly Duration { get; set; }
 
+    required public decimal Price { get; set; }
 }

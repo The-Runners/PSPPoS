@@ -6,13 +6,27 @@ namespace Contracts;
 public class OrderPostModel
 {
     public Guid? CustomerId { get; init; }
+
+    public required Guid EmployeeId { get; set; }
+
+    public required decimal Price { get; set; }
+
+    public decimal? Discount { get; set; }
+
+    public decimal? Tip { get; set; }
 }
 
 public record OrderProductPatchModel(string Name, int Amount);
 
-public class OrderPatchModel
+public class OrderProductItemsDto
 {
-    public Guid? CustomerId { get; init; }
+    public required Guid Id { get; init; }
+    public required IEnumerable<OrderProductPatchModel> OrderProducts { get; init; }
+}
+
+public class OrderPatchModel2
+{
+    public Guid Id { get; init; }
     public decimal Discount { get; init; }
     public decimal Tip { get; init; }
     public required IEnumerable<OrderProductPatchModel> OrderProducts { get; init; }
@@ -31,6 +45,7 @@ public class OrderViewModel
 {
     public Guid Id { get; init; }
     public Guid? CustomerId { get; init; }
+    public Guid EmployeeId { get; init; }
     public OrderStatus Status { get; init; }
     public decimal Discount { get; init; }
     public decimal TotalPrice { get; init; }
