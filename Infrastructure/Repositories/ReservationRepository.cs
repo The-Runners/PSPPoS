@@ -6,31 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
-public class ReservationRepository : IReservationRepository
+public class ReservationRepository : GenericRepository<Reservation>, IReservationRepository
 {
-    private readonly AppDbContext _context;
     private readonly DbSet<Reservation> _reservations;
-    public ReservationRepository(AppDbContext context)
-    {
-        _context = context;
-        _reservations = _context.Set<Reservation>();
-    }
 
-    public async Task<ReservationModelDto?> GetReservationById(Guid id)
-    {
-        var reservation = await _reservations.FindAsync(id);
-        if (reservation is null)
-        {
-            return null;
-        }
-
-        return new ReservationModelDto
-        {
-            Id = reservation.Id,
-            OrderId = reservation.OrderId,
-            ServiceId = reservation.ServiceId,
-            TimeSlot = reservation.TimeSlot,
-        };
+    public ReservationRepository(AppDbContext context) : base(context) 
+    { 
+        _reservations = context.Set<Reservation>();
     }
 
     public async Task<List<ReservationModelDto>?> GetFilteredReservations(ReservationFilter filter)
@@ -61,18 +43,5 @@ public class ReservationRepository : IReservationRepository
         }
 
         return reservationDtos;
-    }
-
-    public async Task AddReservation(ReservationCreateDto reservationDto)
-    {
-        var reservation = new Reservation
-        {
-            Id = new Guid(),
-            OrderId = reservationDto.OrderId,
-            ServiceId = reservationDto.ServiceId,
-            TimeSlot = reservationDto.TimeSlot,
-        };
-        await _reservations.AddAsync(reservation);
-        await _context.SaveChangesAsync();
     }
 }
