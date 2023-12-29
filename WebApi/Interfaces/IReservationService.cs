@@ -1,9 +1,10 @@
 ﻿using Contracts.DTOs.Reservation;
 
-namespace WebApi.Interfaces
+namespace WebApi.Interfaces;
+
+public interface IReservationService
 {
-    public interface IReservationService
-    {
-        Task CreateReservation(ReservationOrderDto reservationDto);
-    }
+    Task CreateReservation(ReservationOrderDto reservationDto);
+
+    Task<ReservationServiceDto> GenerateReservationServiceModel(Guid orderId);
 }

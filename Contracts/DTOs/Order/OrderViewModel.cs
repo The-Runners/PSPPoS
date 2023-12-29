@@ -9,5 +9,5 @@ public class OrderViewModel
     public decimal Discount { get; init; }
     public decimal TotalPrice { get; init; }
     public decimal Tip { get; init; }
-    public required IEnumerable<OrderProductViewModel> OrderProducts { get; init; }
+    public required IEnumerable<ProductForOrderDto> OrderProducts { get; init; }
 }

@@ -16,6 +16,8 @@ public class OrderService : IOrderService
     private readonly IGenericRepository<Service> _serviceRepository;
     private readonly IGenericRepository<Product> _productRepository;
     private readonly IGenericRepository<Customer> _customerRepository;
+    private readonly IOrderProductService _orderProductService;
+    private readonly IReservationService _reservationService;
     private readonly IMapper _mapper;
 
     public OrderService(
@@ -25,8 +27,10 @@ public class OrderService : IOrderService
         IGenericRepository<Service> serviceRepository,
         IGenericRepository<Product> productRepository,
         IGenericRepository<Customer> customerRepository,
-        IMapper mapper)
-    {
+        IMapper mapper,
+        IOrderProductService orderProductService,
+        IReservationService reservationService)
+{
         _orderRepository = orderRepository;
         _orderProductRepository = orderProductRepository;
         _reservationRepository = reservationRepository;
@@ -34,7 +38,9 @@ public class OrderService : IOrderService
         _productRepository = productRepository;
         _customerRepository = customerRepository;
         _mapper = mapper;
-    }
+        _orderProductService = orderProductService;
+        _reservationService = reservationService;
+}
 
     public async Task<Order> CreateEmptyOrder(OrderPostModel orderDto)
     {
@@ -52,18 +58,72 @@ public class OrderService : IOrderService
         return await _orderRepository.Add(order);
     }
 
-    public async Task AddProductsToOrder(List<OrderProductCreateDto> orderProductDtos)
+    public async Task AddProductsToOrder(OrderProductsDto products)
     {
-        foreach (var orderProductDto in orderProductDtos)
+        foreach (var orderProductDto in products.OrderProducts)
         {
-            var orderProduct = _mapper.Map<OrderProduct>(orderProductDto);
+            var orderProduct = new OrderProduct
+            {
+                OrderId = products.OrderId,
+                ProductId = orderProductDto.ProductId,
+                Amount = orderProductDto.Amount,
+            };
             await _orderProductRepository.Add(orderProduct);
         }
     }
 
-    public async Task<OrderViewModel> GenerateFinalOrderModel(Guid orderId)
+    public async Task RemoveProductsFromOrder(OrderProductsDto products)
     {
-        throw new NotImplementedException();
+        foreach (var orderProductDto in products.OrderProducts)
+        {
+            var orderProductFromDb = await _orderProductRepository
+                    .GetProductByOrderAndProductIds(products.OrderId, orderProductDto.ProductId);
+            if (orderProductFromDb is null)
+            {
+                throw new NullReferenceException("No OrderProduct found with given order and product IDs!");
+            }
+
+            if (orderProductFromDb.Amount > orderProductDto.Amount)
+            {
+                var orderProduct = new OrderProduct
+                {
+                    OrderId = products.OrderId,
+                    ProductId = orderProductFromDb.ProductId,
+                    Amount = orderProductFromDb.Amount - orderProductDto.Amount,
+                };
+                await _orderProductRepository.Update(orderProduct);
+            }
+            else if (orderProductFromDb.Amount <= orderProductDto.Amount)
+            {
+                await _orderProductRepository
+                    .DeleteProductByOrderAndProductIds(products.OrderId, orderProductFromDb.ProductId);
+            }
+        }
+    }
+
+    public async Task<OrderFinalDto> GenerateFinalOrderModel(Order order)
+    {
+        var totalPrice = await CalculateOrderPrice(order);
+        var orderProducts = await _orderProductService.GenerateProductViewModels(order.Id);
+        var reservationServiceDto = await _reservationService.GenerateReservationServiceModel(order.Id);
+        var finalOrderModel = new OrderFinalDto
+        {
+            OrderId = order.Id,
+            CustomerId = order.CustomerId,
+            EmployeeId = order.EmployeeId,
+            Status = order.Status,
+            TotalPrice = totalPrice,
+            Discount = order.Discount,
+            Tip = order.Tip,
+            OrderProducts = orderProducts,
+            ReservationId = reservationServiceDto.ReservationId ?? Guid.Empty,
+            ServiceId = reservationServiceDto.ServiceId ?? Guid.Empty,
+            Name = reservationServiceDto.Name,
+            TimeSlot = reservationServiceDto.TimeSlot,
+            Duration = reservationServiceDto.Duration,
+        };
+
+        return finalOrderModel;
     }
 
     public async Task<decimal> CalculateOrderPrice(Order order)
@@ -81,16 +141,15 @@ public class OrderService : IOrderService
             price += await GetServicePrice(reservation.ServiceId, price);
         }
 
-        if (order.CustomerId is not null)
-        {
-            price -= await ApplyCustomerLoyaltyDiscount(order.CustomerId, price);
-        }
+        var discount = await GetFinalOrderDiscount(order);
+        price -= price * discount;
 
         price += order.Tip;
+
         return price;
     }
 
-    public async Task ApplyDiscount(Guid orderId, decimal discount)
+    public async Task ApplyOrderDiscount(Guid orderId, decimal discount)
     {
         var order = await GetOrderById(orderId);
         order.Discount = discount;
@@ -141,19 +200,14 @@ public class OrderService : IOrderService
         return price + service.Price;
     }
 
-    private async Task<decimal> ApplyCustomerLoyaltyDiscount(Guid? customerId, decimal price)
+    private async Task<decimal> GetFinalOrderDiscount(Order order)
     {
-        if (customerId is null)
+        if (order.CustomerId is not null)
         {
-            return price;
+            var customer = await _customerRepository.GetById(order.CustomerId);
+            return customer is not null ? customer.LoyaltyDiscount + order.Discount : order.Discount;
         }
 
-        var customer = await _customerRepository.GetById(customerId);
-        if (customer is not null && customer.LoyaltyDiscount != 0)
-        {
-            return customer.LoyaltyDiscount / 100 * price;
-        }
-
-        return price;
+        return order.Discount;
     }
 }

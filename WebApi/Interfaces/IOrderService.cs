@@ -8,13 +8,15 @@ public interface IOrderService
 {
     Task<Order> CreateEmptyOrder(OrderPostModel orderDto);
 
-    Task AddProductsToOrder(List<OrderProductCreateDto> orderProductDtos);
+    Task AddProductsToOrder(OrderProductsDto products);
 
-    //Task CalculateOrderPrice(Guid orderId);
+    Task RemoveProductsFromOrder(OrderProductsDto products);
 
-    Task<OrderViewModel> GenerateFinalOrderModel(Guid orderId);
+    Task<decimal> CalculateOrderPrice(Order order);
 
-    Task ApplyDiscount(Guid orderId, decimal discount);
+    Task<OrderFinalDto> GenerateFinalOrderModel(Order order);
+
+    Task ApplyOrderDiscount(Guid orderId, decimal discount);
 
     Task AddTip(Guid orderId, decimal tip);
 }
