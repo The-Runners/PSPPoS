@@ -1,5 +1,4 @@
-﻿using Contracts.DTOs.Reservation;
-using Domain.Filters;
+﻿using Domain.Filters;
 using Domain.Models;
 using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -15,34 +14,26 @@ public class ReservationRepository : GenericRepository<Reservation>, IReservatio
         _reservations = context.Set<Reservation>();
     }
 
-    public async Task<List<ReservationModelDto>?> GetFilteredReservations(ReservationFilter filter)
+    public async Task<List<Reservation>?> GetFilteredReservations(ReservationFilter filter)
     {
         var reservations = await _reservations.ToListAsync();
 
         if (filter.StartDate.HasValue)
         {
-            reservations = reservations.Where(r => r.TimeSlot >= filter.StartDate.Value).ToList();
+            reservations = reservations.Where(r => r.StartDateTime >= filter.StartDate.Value).ToList();
         }
 
         if (filter.EndDate.HasValue)
         {
-            reservations = reservations.Where(r => r.TimeSlot <= filter.EndDate.Value).ToList();
+            reservations = reservations.Where(r => r.StartDateTime <= filter.EndDate.Value).ToList();
         }
 
-        var reservationDtos = new List<ReservationModelDto>();
-        foreach (var reservation in reservations)
-        {
-            var reservationDto = new ReservationModelDto
-            {
-                Id = reservation.Id,
-                OrderId = reservation.OrderId,
-                ServiceId = reservation.ServiceId,
-                TimeSlot = reservation.TimeSlot,
-            };
-            reservationDtos.Add(reservationDto);
+        if (filter.OrderId.HasValue) 
+        { 
+            reservations = reservations.Where(r => r.OrderId ==  filter.OrderId).ToList();
         }
 
-        return reservationDtos;
+        return reservations;
     }
 
     public async Task<Reservation?> GetReservationByOrderId(Guid orderId)

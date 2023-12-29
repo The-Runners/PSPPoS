@@ -54,7 +54,7 @@ public static class PaymentEndpoints
 
             if (paidSum is 0 && paymentPostModel.Amount != order.Price)
             {
-                order.Status = OrderStatus.Ordered;
+                order.Status = OrderStatus.PartiallyPaid;
             }
 
             else if (paymentPostModel.Amount + paidSum == order.Price)

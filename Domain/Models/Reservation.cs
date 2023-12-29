@@ -8,5 +8,5 @@ public class Reservation
 
     public required Guid ServiceId { get; set; }
 
-    public required DateTime TimeSlot { get; set; }
+    public required DateTime StartDateTime { get; set; }
 }

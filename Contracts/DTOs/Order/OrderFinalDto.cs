@@ -15,6 +15,6 @@ public class OrderFinalDto
     public Guid? ReservationId { get; init; }
     public Guid? ServiceId { get; init; }
     public DateTime? TimeSlot { get; init; }
-    public TimeOnly? Duration { get; init; }
+    public TimeSpan? Duration { get; init; }
     public string? Name { get; init; }
 }

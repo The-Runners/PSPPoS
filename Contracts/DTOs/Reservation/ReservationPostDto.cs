@@ -1,9 +1,7 @@
 ﻿namespace Contracts.DTOs.Reservation;
 
-public class ReservationModelDto
+public class ReservationPostDto
 {
-    required public Guid Id { get; set; }
-
     required public Guid OrderId { get; set; }
 
     required public Guid ServiceId { get; set; }

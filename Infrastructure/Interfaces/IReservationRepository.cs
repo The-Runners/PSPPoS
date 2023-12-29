@@ -6,7 +6,7 @@ namespace Infrastructure.Interfaces;
 
 public interface IReservationRepository : IGenericRepository<Reservation>
 {
-    Task<List<ReservationModelDto>?> GetFilteredReservations(ReservationFilter filter);
+    Task<List<Reservation>?> GetFilteredReservations(ReservationFilter filter);
 
     Task<Reservation?> GetReservationByOrderId(Guid orderId);
 }
