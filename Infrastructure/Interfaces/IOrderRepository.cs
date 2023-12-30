@@ -5,5 +5,5 @@ namespace Infrastructure.Interfaces;
 
 public interface IOrderRepository
 {
-    public Task<List<Order>?> GetFilteredOrders(OrderFilter filter);
+    Task<List<Order>?> GetFilteredOrders(OrderFilter filter);
 }

@@ -9,6 +9,7 @@ public class OrderProductService : IOrderProductService
 {
     private readonly IOrderProductRepository _orderProductRepository;
     private readonly IGenericRepository<Product> _productRepository;
+
     public OrderProductService(
         IOrderProductRepository orderProductRepository,
         IGenericRepository<Product> productRepository)

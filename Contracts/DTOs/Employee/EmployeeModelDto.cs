@@ -2,8 +2,9 @@
 
 public class EmployeeModelDto
 {
-    required public Guid Id { get; set; }
+    public required Guid Id { get; set; }
 
-    required public TimeSpan StartTime { get; set; }
-    required public TimeSpan EndTime { get; set; }
+    public required TimeSpan StartTime { get; set; }
+
+    public required TimeSpan EndTime { get; set; }
 }

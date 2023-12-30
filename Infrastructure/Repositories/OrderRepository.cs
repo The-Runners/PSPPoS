@@ -5,6 +5,7 @@ using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
+
 public class OrderRepository : GenericRepository<Order>, IOrderRepository
 {
     private readonly DbSet<Order> _orderRepository;

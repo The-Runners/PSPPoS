@@ -1,6 +1,6 @@
 ﻿namespace Contracts.DTOs.Order;
 
-public class OrderPostModel
+public class EmptyOrderCreateDto
 {
     public Guid? CustomerId { get; init; }
 

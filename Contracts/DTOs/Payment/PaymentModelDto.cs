@@ -2,10 +2,13 @@
 
 namespace Contracts.DTOs.Payment;
 
-public class PaymentViewModel
+public class PaymentModelDto
 {
     public Guid Id { get; init; }
+
     public Guid OrderId { get; init; }
+
     public decimal Amount { get; init; }
+
     public PaymentType Type { get; init; }
 }

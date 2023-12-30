@@ -1,5 +1,4 @@
-﻿using Contracts;
-using Contracts.DTOs.Payment;
+﻿using Contracts.DTOs.Payment;
 using Domain.Enums;
 using Domain.Models;
 using Infrastructure;
@@ -27,7 +26,7 @@ public static class PaymentEndpoints
 
         });
 
-        group.MapPost(string.Empty, (AppDbContext ctx, PaymentPostModel paymentPostModel) =>
+        group.MapPost(string.Empty, (AppDbContext ctx, PaymentCreateDto paymentPostModel) =>
         {
             var errors = new Dictionary<string, string[]>();
 

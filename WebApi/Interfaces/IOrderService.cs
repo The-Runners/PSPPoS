@@ -6,7 +6,7 @@ namespace WebApi.Interfaces;
 
 public interface IOrderService
 {
-    Task<Order> CreateEmptyOrder(OrderPostModel orderDto);
+    Task<Order> CreateEmptyOrder(EmptyOrderCreateDto orderDto);
 
     Task AddProductsToOrder(OrderProductsDto products);
 

@@ -40,7 +40,7 @@ public class ReservationService : IReservationService
 
         if (await CanBookTimeSlot(reservationOrderDto.EmployeeId, reservationSlot))
         {
-            var orderDto = new OrderPostModel
+            var orderDto = new EmptyOrderCreateDto
             {
                 EmployeeId = reservationOrderDto.EmployeeId,
                 CustomerId = reservationOrderDto.CustomerId
@@ -52,7 +52,7 @@ public class ReservationService : IReservationService
                 Id = Guid.NewGuid(),
                 OrderId = order.Id,
                 ServiceId = reservationOrderDto.ServiceId,
-                StartDateTime = reservationOrderDto.TimeSlot
+                StartTime = reservationOrderDto.TimeSlot
             };
 
             await _reservationRepository.Add(reservation);
@@ -104,7 +104,7 @@ public class ReservationService : IReservationService
         }
 
         reservationServiceDto.ReservationId = reservation.Id;
-        reservationServiceDto.TimeSlot = reservation.StartDateTime;
+        reservationServiceDto.StartTime = reservation.StartTime;
         var service = await _serviceRepository.GetById(reservation.ServiceId);
         if (service is null)
         {

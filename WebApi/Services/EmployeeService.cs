@@ -53,14 +53,14 @@ public class EmployeeService : IEmployeeService
             }
         }
 
-        reservations = reservations.OrderBy(r => r.StartDateTime).ToList();
+        reservations = reservations.OrderBy(r => r.StartTime).ToList();
 
         List<TimeSlot> availableTimeSlots = new List<TimeSlot>();
         DateTime availableStart = timePeriod.StartTime;
 
         foreach (Reservation reservation in reservations)
         {
-            var reservationStart = reservation.StartDateTime;
+            var reservationStart = reservation.StartTime;
             var reservationEnd = await _reservationService.CalculateReservationEndTime(employeeId, reservationStart);
 
             if (reservationStart > availableStart)
@@ -89,7 +89,7 @@ public class EmployeeService : IEmployeeService
 
     public async Task<Employee> Create(EmployeeCreateDto employeeDto)
     {
-        if (CheckStartBeforeEnd(employeeDto.StartTime, employeeDto.EndTime))
+        if (IsStartTimeValid(employeeDto.StartTime, employeeDto.EndTime))
         {
             throw new InvalidTimeException("Start time is later then the end time.");
         }
@@ -103,9 +103,8 @@ public class EmployeeService : IEmployeeService
         return await _employeeRepository.Add(employee);
     }
 
-    private static bool CheckStartBeforeEnd(TimeSpan startTime, TimeSpan endTime)
+    private static bool IsStartTimeValid(TimeSpan startTime, TimeSpan endTime)
     {
         return startTime < endTime;
     }
-
 }

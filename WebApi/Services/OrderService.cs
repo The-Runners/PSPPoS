@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Contracts.DTOs.Order;
+﻿using Contracts.DTOs.Order;
 using Contracts.DTOs.OrderProduct;
 using Domain.Enums;
 using Domain.Models;
@@ -18,7 +17,6 @@ public class OrderService : IOrderService
     private readonly IGenericRepository<Customer> _customerRepository;
     private readonly IOrderProductService _orderProductService;
     private readonly IReservationService _reservationService;
-    private readonly IMapper _mapper;
 
     public OrderService(
         IGenericRepository<Order> orderRepository,
@@ -27,7 +25,6 @@ public class OrderService : IOrderService
         IGenericRepository<Service> serviceRepository,
         IGenericRepository<Product> productRepository,
         IGenericRepository<Customer> customerRepository,
-        IMapper mapper,
         IOrderProductService orderProductService,
         IReservationService reservationService)
 {
@@ -37,12 +34,11 @@ public class OrderService : IOrderService
         _serviceRepository = serviceRepository;
         _productRepository = productRepository;
         _customerRepository = customerRepository;
-        _mapper = mapper;
         _orderProductService = orderProductService;
         _reservationService = reservationService;
 }
 
-    public async Task<Order> CreateEmptyOrder(OrderPostModel orderDto)
+    public async Task<Order> CreateEmptyOrder(EmptyOrderCreateDto orderDto)
     {
         var order = new Order
         {
@@ -119,7 +115,7 @@ public class OrderService : IOrderService
             ReservationId = reservationServiceDto.ReservationId ?? Guid.Empty,
             ServiceId = reservationServiceDto.ServiceId ?? Guid.Empty,
             Name = reservationServiceDto.Name,
-            TimeSlot = reservationServiceDto.TimeSlot,
+            StartTime = reservationServiceDto.StartTime,
             Duration = reservationServiceDto.Duration,
         };
 

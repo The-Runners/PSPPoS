@@ -1,6 +1,6 @@
 ﻿namespace Contracts.DTOs.Customer;
 
-public class CustomerPutModel
+public class CustomerEditDto
 {
     public decimal LoyaltyDiscount { get; init; }
 }

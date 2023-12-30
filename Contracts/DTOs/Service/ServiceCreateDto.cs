@@ -1,10 +1,10 @@
 ﻿namespace Contracts.DTOs.Service;
 
-public class ServiceCreateDto
+public class ServiceCreateDto // Need to create ServiceService to add services
 {
-    required public string Name { get; set; }
+    public required string Name { get; set; }
 
-    required public TimeOnly Duration { get; set; }
+    public required TimeSpan Duration { get; set; }
 
-    required public decimal Price { get; set; }
+    public required decimal Price { get; set; }
 }

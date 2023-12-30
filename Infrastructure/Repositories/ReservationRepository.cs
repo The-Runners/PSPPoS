@@ -20,12 +20,12 @@ public class ReservationRepository : GenericRepository<Reservation>, IReservatio
 
         if (filter.StartDate.HasValue)
         {
-            reservations = reservations.Where(r => r.StartDateTime >= filter.StartDate.Value).ToList();
+            reservations = reservations.Where(r => r.StartTime >= filter.StartDate.Value).ToList();
         }
 
         if (filter.EndDate.HasValue)
         {
-            reservations = reservations.Where(r => r.StartDateTime <= filter.EndDate.Value).ToList();
+            reservations = reservations.Where(r => r.StartTime <= filter.EndDate.Value).ToList();
         }
 
         if (filter.OrderId.HasValue) 

@@ -1,11 +1,8 @@
-﻿using Contracts.DTOs.Payment;
-using Domain.Models;
-
-namespace Contracts;
+﻿namespace Contracts.DTOs.Payment;
 
 public static class PaymentModelExtensions
 {
-    public static PaymentViewModel ToViewModel(this Payment payment) => new()
+    public static PaymentModelDto ToViewModel(this Domain.Models.Payment payment) => new()
     {
         Id = payment.Id,
         Amount = payment.Amount,

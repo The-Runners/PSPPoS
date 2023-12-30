@@ -8,6 +8,7 @@ using Infrastructure.Repositories;
 using WebApi.Endpoints;
 using WebApi.Interfaces;
 using WebApi.Services;
+using WebApi.Extensions;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -27,14 +28,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString);
 });
 
-builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
-builder.Services.AddScoped<IOrderProductRepository, OrderProductRepository>();
-builder.Services.AddScoped<IGenericRepository<Customer>, CustomerRepository>();
-builder.Services.AddScoped<IGenericRepository<Employee>, EmployeeRepository>();
-builder.Services.AddScoped<IGenericRepository<Order>, OrderRepository>();
-builder.Services.AddScoped<IGenericRepository<Service>, ServiceRepository>();
-
-builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddDatabaseServices();
+builder.Services.AddApplicationServices();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
