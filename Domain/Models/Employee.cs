@@ -7,5 +7,4 @@ public class Employee
     public required TimeSpan StartTime { get; set; }
 
     public required TimeSpan EndTime { get; set; }
-    //TODO: add available services
 }

@@ -1,4 +1,6 @@
-﻿namespace Contracts.DTOs.Service;
+﻿using ModelsEmployee = Domain.Models.Employee;
+
+namespace Contracts.DTOs.Service;
 
 public class ServiceModelDto
 {
@@ -9,4 +11,6 @@ public class ServiceModelDto
     public required TimeSpan Duration { get; set; }
 
     public required decimal Price { get; set; }
+
+    public IEnumerable<ModelsEmployee>? Employees { get; set; }
 }
