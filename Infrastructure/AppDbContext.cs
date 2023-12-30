@@ -11,9 +11,13 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
 
     public required DbSet<Order> Orders { get; init; }
 
+    public required DbSet<Employee> Reservations { get; init; }
+
     public required DbSet<OrderProduct> OrderProducts { get; init; }
 
     public required DbSet<Customer> Customers { get; init; }
+
+    public required DbSet<Employee> Employees { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

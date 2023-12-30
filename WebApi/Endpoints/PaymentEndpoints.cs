@@ -1,4 +1,4 @@
-﻿using Contracts;
+﻿using Contracts.DTOs.Payment;
 using Domain.Enums;
 using Domain.Models;
 using Infrastructure;
@@ -26,7 +26,7 @@ public static class PaymentEndpoints
 
         });
 
-        group.MapPost(string.Empty, (AppDbContext ctx, PaymentPostModel paymentPostModel) =>
+        group.MapPost(string.Empty, (AppDbContext ctx, PaymentCreateDto paymentPostModel) =>
         {
             var errors = new Dictionary<string, string[]>();
 
@@ -53,7 +53,7 @@ public static class PaymentEndpoints
 
             if (paidSum is 0 && paymentPostModel.Amount != order.Price)
             {
-                order.Status = OrderStatus.Ordered;
+                order.Status = OrderStatus.PartiallyPaid;
             }
 
             else if (paymentPostModel.Amount + paidSum == order.Price)

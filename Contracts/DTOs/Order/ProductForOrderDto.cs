@@ -1,0 +1,12 @@
+﻿namespace Contracts.DTOs.Order;
+
+public class ProductForOrderDto
+{
+    public required Guid ProductId { get; init; }
+
+    public required string Name { get; init; }
+
+    public required int Amount { get; init; }
+
+    public required decimal UnitPrice { get; init; }
+}

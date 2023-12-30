@@ -2,7 +2,9 @@
 
 public class OrderProduct
 {
-    public Guid ProductId { get; init; }
-    public Guid OrderId { get; init; }
-    public int Amount { get; set; }
+    public required Guid ProductId { get; init; }
+
+    public required Guid OrderId { get; init; }
+
+    public required int Amount { get; set; }
 }

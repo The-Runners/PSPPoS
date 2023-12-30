@@ -2,7 +2,13 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
+using Domain.Models;
+using Infrastructure.Interfaces;
+using Infrastructure.Repositories;
 using WebApi.Endpoints;
+using WebApi.Interfaces;
+using WebApi.Services;
+using WebApi.Extensions;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -21,6 +27,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     options.UseNpgsql(connectionString);
 });
+
+builder.Services.AddDatabaseServices();
+builder.Services.AddApplicationServices();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -45,9 +54,10 @@ app.UseSwaggerUI(options =>
 });
 
 app.MapPaymentEndpoints();
-app.MapOrderEndpoints();
-app.MapProductEndpoints();
-app.MapCustomerEndpoints();
+// Will need fixing
+//app.MapOrderEndpoints();
+//app.MapProductEndpoints();
+//app.MapCustomerEndpoints();
 
 using var scope = app.Services.CreateScope();
 using var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
