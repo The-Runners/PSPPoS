@@ -21,12 +21,12 @@ public class OrderProductService : IOrderProductService
     public async Task<List<ProductForOrderDto>?> GenerateProductViewModels(Guid orderId)
     {
         var orderProducts = await _orderProductRepository.GetAllProductsForOrderId(orderId);
-        if (orderProducts is not null)
+        if (orderProducts is null)
         {
-            return await GenerateModels(orderProducts);
+            return null;
         }
-
-        return null;
+        
+        return await GenerateModels(orderProducts);
     }
 
     private async Task<List<ProductForOrderDto>> GenerateModels(IEnumerable<OrderProduct> orderProducts)

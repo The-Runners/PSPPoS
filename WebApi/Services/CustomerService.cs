@@ -14,32 +14,42 @@ namespace WebApi.Services
         private readonly IGenericRepository<Customer> _customerRepository;
 
         public CustomerService(
-            IGenericRepository<Employee> customerRepository)
+            IGenericRepository<Customer> customerRepository)
         {
             _customerRepository = customerRepository;
         }
 
-        public async Task<Customer> Create(CustomerCreateDto customer)
+        public async Task<Customer> Create(CustomerCreateDto customerDto)
         {
             Customer customer = new()
             {
                 Id = Guid.NewGuid(),
-                LoyaltyDiscount = customer.LoyaltyDiscount,
+                LoyaltyDiscount = customerDto.LoyaltyDiscount,
                 CreatedAt = DateTimeOffset.Now,
             };
 
             return await _customerRepository.Add(customer);
         }
-
-        public async Task<Customer> Edit(CustomerEditDto customer)
+        
+        public async Task<Customer?> GetCustomerById(Guid customerId)
         {
-            var customer = await _customerRepository.UpdateCustomerLoyalty(customer.Id, customer.LoyaltyDiscount);
-            if (customer == null)
-            {
-                throw new NullReferenceException("No customer found with provided Id. ");
-            }
+            return await _customerRepository.GetById(customerId);
+        }
 
-            return customer;
+        public async Task<Customer?> Edit(CustomerEditDto customerDto)
+        {
+            var customer = new Customer()
+            {
+                Id = customerDto.Id,
+                LoyaltyDiscount = customerDto.LoyaltyDiscount,
+            };
+            
+            return await _customerRepository.Update(customer);
+        }
+
+        public async Task Delete(Guid customerId)
+        {
+            await _customerRepository.Delete(customerId);
         }
     }
 }
