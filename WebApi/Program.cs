@@ -2,12 +2,7 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
-using Domain.Models;
-using Infrastructure.Interfaces;
-using Infrastructure.Repositories;
 using WebApi.Endpoints;
-using WebApi.Interfaces;
-using WebApi.Services;
 using WebApi.Extensions;
 
 var builder = WebApplication.CreateSlimBuilder(args);

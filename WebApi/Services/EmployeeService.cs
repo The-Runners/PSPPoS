@@ -10,22 +10,21 @@ namespace WebApi.Services;
 
 public class EmployeeService : IEmployeeService
 {
-
     private readonly IGenericRepository<Employee> _employeeRepository;
+    private readonly IServiceRepository _serviceRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IReservationRepository _reservationRepository;
-    private readonly IReservationService _reservationService;
 
     public EmployeeService(
         IGenericRepository<Employee> employeeRepository,
+        IServiceRepository serviceRepository,
         IOrderRepository orderRepository,
-        IReservationRepository reservationRepository,
-        IReservationService reservationService)
+        IReservationRepository reservationRepository)
     {
         _employeeRepository = employeeRepository;
+        _serviceRepository = serviceRepository;
         _orderRepository = orderRepository;
         _reservationRepository = reservationRepository;
-        _reservationService = reservationService;
     }
 
     public async Task<IEnumerable<TimeSlot>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod)
@@ -35,7 +34,7 @@ public class EmployeeService : IEmployeeService
         {
             OrderStatuses = new List<OrderStatus> { OrderStatus.Paid, OrderStatus.Ordered, OrderStatus.Created },
             EndDate = timePeriod.EndTime,
-            EmployeeId = employeeId
+            EmployeeId = employeeId,
         };
 
         var orders = await _orderRepository.GetFilteredOrders(orderFilter);
@@ -61,7 +60,8 @@ public class EmployeeService : IEmployeeService
         foreach (Reservation reservation in reservations)
         {
             var reservationStart = reservation.StartTime;
-            var reservationEnd = await _reservationService.CalculateReservationEndTime(employeeId, reservationStart);
+            var reservationDuration = await _serviceRepository.GetServiceDuration(employeeId);
+            var reservationEnd = reservationStart.Add(reservationDuration);
 
             if (reservationStart > availableStart)
             {
