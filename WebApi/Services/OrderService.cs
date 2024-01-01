@@ -1,5 +1,6 @@
 ﻿using Contracts.DTOs.Order;
 using Contracts.DTOs.OrderProduct;
+using Contracts.DTOs.Reservation;
 using Domain.Enums;
 using Domain.Models;
 using Infrastructure.Interfaces;
@@ -9,24 +10,22 @@ namespace WebApi.Services;
 
 public class OrderService : IOrderService
 {
-    private readonly IGenericRepository<Order> _orderRepository;
+    private readonly IOrderRepository _orderRepository;
     private readonly IOrderProductRepository _orderProductRepository;
     private readonly IReservationRepository _reservationRepository;
-    private readonly IGenericRepository<Service> _serviceRepository;
+    private readonly IServiceRepository _serviceRepository;
     private readonly IGenericRepository<Product> _productRepository;
     private readonly IGenericRepository<Customer> _customerRepository;
     private readonly IOrderProductService _orderProductService;
-    private readonly IReservationService _reservationService;
 
     public OrderService(
-        IGenericRepository<Order> orderRepository,
+        IOrderRepository orderRepository,
         IOrderProductRepository orderProductRepository,
         IReservationRepository reservationRepository,
-        IGenericRepository<Service> serviceRepository,
+        IServiceRepository serviceRepository,
         IGenericRepository<Product> productRepository,
         IGenericRepository<Customer> customerRepository,
-        IOrderProductService orderProductService,
-        IReservationService reservationService)
+        IOrderProductService orderProductService)
 {
         _orderRepository = orderRepository;
         _orderProductRepository = orderProductRepository;
@@ -35,7 +34,6 @@ public class OrderService : IOrderService
         _productRepository = productRepository;
         _customerRepository = customerRepository;
         _orderProductService = orderProductService;
-        _reservationService = reservationService;
 }
 
     public async Task<Order> CreateEmptyOrder(EmptyOrderCreateDto orderDto)
@@ -101,7 +99,7 @@ public class OrderService : IOrderService
     {
         var totalPrice = await CalculateOrderPrice(order);
         var orderProducts = await _orderProductService.GenerateProductViewModels(order.Id);
-        var reservationServiceDto = await _reservationService.GenerateReservationServiceModel(order.Id);
+        var reservationServiceDto = await GenerateReservationServiceModel(order.Id);
         var finalOrderModel = new OrderFinalDto
         {
             OrderId = order.Id,
@@ -205,5 +203,29 @@ public class OrderService : IOrderService
         }
 
         return order.Discount;
+    }
+
+    private async Task<ReservationServiceDto> GenerateReservationServiceModel(Guid orderId)
+    {
+        var reservationServiceDto = new ReservationServiceDto();
+        var reservation = await _reservationRepository.GetReservationByOrderId(orderId);
+        if (reservation is null)
+        {
+            return reservationServiceDto;
+        }
+
+        reservationServiceDto.ReservationId = reservation.Id;
+        reservationServiceDto.StartTime = reservation.StartTime;
+        var service = await _serviceRepository.GetById(reservation.ServiceId);
+        if (service is null)
+        {
+            return reservationServiceDto;
+        }
+
+        reservationServiceDto.ServiceId = service.Id;
+        reservationServiceDto.Name = service.Name;
+        reservationServiceDto.Duration = service.Duration;
+
+        return reservationServiceDto;
     }
 }

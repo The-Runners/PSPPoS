@@ -14,6 +14,7 @@ public static class ServicesExtensions
         services.AddScoped<IOrderProductRepository, OrderProductRepository>();
         services.AddScoped<IGenericRepository<Customer>, CustomerRepository>();
         services.AddScoped<IGenericRepository<Employee>, EmployeeRepository>();
+        services.AddScoped<IGenericRepository<Product>, ProductRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IServiceRepository, ServiceRepository>();
     }

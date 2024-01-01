@@ -87,34 +87,10 @@ public class ReservationService : IReservationService
         return false;
     }
 
-    public async Task<DateTime> CalculateReservationEndTime(Guid serviceId, DateTime reservationStart) 
+    private async Task<DateTime> CalculateReservationEndTime(Guid serviceId, DateTime reservationStart) 
     {
         var reservationDuration = await _serviceRepository.GetServiceDuration(serviceId);
         var reservationEnd = reservationStart.Add(reservationDuration);
         return reservationEnd;
-    }
-
-    public async Task<ReservationServiceDto> GenerateReservationServiceModel(Guid orderId)
-    {
-        var reservationServiceDto = new ReservationServiceDto();
-        var reservation = await _reservationRepository.GetReservationByOrderId(orderId);
-        if (reservation is null)
-        {
-            return reservationServiceDto;
-        }
-
-        reservationServiceDto.ReservationId = reservation.Id;
-        reservationServiceDto.StartTime = reservation.StartTime;
-        var service = await _serviceRepository.GetById(reservation.ServiceId);
-        if (service is null)
-        {
-            return reservationServiceDto;
-        }
-
-        reservationServiceDto.ServiceId = service.Id;
-        reservationServiceDto.Name = service.Name;
-        reservationServiceDto.Duration = service.Duration;
-
-        return reservationServiceDto;
     }
 }
