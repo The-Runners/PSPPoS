@@ -21,8 +21,7 @@ public class PaymentService : IPaymentService
         _paymentRepository = paymentRepository;
     }
 
-    public async ValueTask<Either<DomainException, Payment>> AddPaymentAsync(
-        PaymentCreateDto model)
+    private async Task<Option<DomainException>> ValidatePaymentCreateDtoAsync(PaymentCreateDto model)
     {
         var order = await _orderRepository.GetById(model.OrderId);
 
@@ -44,18 +43,26 @@ public class PaymentService : IPaymentService
         if (order.Price - paidSum < model.Amount)
             return new ValidationException("Sum of payments has to equal order price.");
 
-        var payment = new Payment()
-        {
-            Id = Guid.NewGuid(),
-            Type = model.Type,
-            Amount = model.Amount,
-            OrderId = model.OrderId,
-        };
-
-        await _paymentRepository.Add(payment);
-
-        return payment;
+        return Option<DomainException>.None;
     }
+
+    public async Task<Either<DomainException, Payment>> AddPaymentAsync(PaymentCreateDto model) =>
+        await ValidatePaymentCreateDtoAsync(model).MatchAsync(
+        ex => Task.FromResult(Either<DomainException, Payment>.Left(ex)),
+        async () =>
+        {
+            var payment = new Payment
+            {
+                Id = Guid.NewGuid(),
+                Type = model.Type,
+                Amount = model.Amount,
+                OrderId = model.OrderId,
+            };
+
+            await _paymentRepository.Add(payment);
+
+            return Either<DomainException, Payment>.Right(payment);
+        });
 
     public async ValueTask<Either<DomainException, Payment>> GetPaymentAsync(Guid id)
     {

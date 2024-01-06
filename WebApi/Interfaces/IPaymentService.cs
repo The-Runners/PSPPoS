@@ -10,5 +10,5 @@ namespace WebApi.Interfaces;
 public interface IPaymentService
 {
     ValueTask<Either<DomainException, Payment>> GetPaymentAsync(Guid id);
-    ValueTask<Either<DomainException, Payment>> AddPaymentAsync(PaymentCreateDto paymentCreateDto);
+    Task<Either<DomainException, Payment>> AddPaymentAsync(PaymentCreateDto paymentCreateDto);
 }
