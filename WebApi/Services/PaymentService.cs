@@ -29,7 +29,7 @@ public class PaymentService : IPaymentService
 
     public async Task<Either<DomainException, Payment>> AddPaymentAsync(PaymentCreateDto model) =>
         await ValidatePaymentCreateDtoAsync(model).MatchAsync(
-            ex => Task.FromResult(Either<DomainException, Payment>.Left(ex)),
+            error => Task.FromResult(Either<DomainException, Payment>.Left(error)),
             async () =>
             {
                 var payment = new Payment
