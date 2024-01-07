@@ -4,8 +4,6 @@ namespace Contracts.DTOs;
 
 public class OrderEditDto
 {
-    public required Guid Id { get; init; }
-
     public Guid? CustomerId { get; set; }
 
     public Guid? EmployeeId { get; set; }

@@ -141,9 +141,9 @@ public class OrderService : IOrderService
         return price;
     }
 
-    public async Task<Order?> Edit(OrderEditDto orderDto)
+    public async Task<Order?> Edit(Guid orderId, OrderEditDto orderDto)
     {
-        var orderFromDb = await _orderRepository.GetById(orderDto.Id);
+        var orderFromDb = await _orderRepository.GetById(orderId);
         if (orderFromDb is null)
         {
             return null;
@@ -151,7 +151,7 @@ public class OrderService : IOrderService
 
         var order = new Order
         {
-            Id = orderDto.Id,
+            Id = orderId,
             CustomerId = orderDto.CustomerId ?? orderFromDb.CustomerId,
             EmployeeId = orderDto.EmployeeId ?? orderFromDb.EmployeeId,
             Status = orderDto.Status ?? orderFromDb.Status,

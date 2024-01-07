@@ -11,7 +11,7 @@ public interface IServiceService
 
     Task<Service> Create(ServiceCreateDto serviceDto);
 
-    Task<Service?> Edit(ServiceEditDto serviceDto);
+    Task<Service?> Edit(Guid serviceId, ServiceEditDto serviceDto);
 
     Task Delete(Guid serviceId);
 }

@@ -2,8 +2,6 @@
 
 public class ServiceEditDto
 {
-    public required Guid Id { get; init; }
-
     public string? Name { get; init; }
 
     public TimeSpan? Duration { get; init; }

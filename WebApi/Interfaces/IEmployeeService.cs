@@ -11,7 +11,7 @@ public interface IEmployeeService
 
     Task<Employee?> GetById(Guid employeeId);
 
-    Task<Employee?> Edit(EmployeeEditDto employeeDto);
+    Task<Employee?> Edit(Guid employeeId, EmployeeEditDto employeeDto);
 
     Task Delete(Guid employeeId);
 }

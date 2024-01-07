@@ -15,5 +15,5 @@ public interface IOrderService
 
     Task<Order> CreateEmptyOrder(EmptyOrderCreateDto orderDto);
 
-    Task<Order?> Edit(OrderEditDto orderDto);
+    Task<Order?> Edit(Guid orderId, OrderEditDto orderDto);
 }

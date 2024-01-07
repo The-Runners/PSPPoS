@@ -117,9 +117,9 @@ public class EmployeeService : IEmployeeService
         return await _employeeRepository.GetById(employeeId);
     }
 
-    public async Task<Employee?> Edit(EmployeeEditDto employeeDto)
+    public async Task<Employee?> Edit(Guid employeeId, EmployeeEditDto employeeDto)
     {
-        var employeeFromDb = await _employeeRepository.GetById(employeeDto.Id);
+        var employeeFromDb = await _employeeRepository.GetById(employeeId);
         if (employeeFromDb is null)
         {
             return null;
@@ -127,7 +127,7 @@ public class EmployeeService : IEmployeeService
 
         var employee = new Employee
         {
-            Id = employeeDto.Id,
+            Id = employeeId,
             StartTime = employeeDto.StartTime ?? employeeFromDb.StartTime,
             EndTime = employeeDto.EndTime ?? employeeFromDb.EndTime,
         };

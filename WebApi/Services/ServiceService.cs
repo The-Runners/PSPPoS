@@ -38,9 +38,9 @@ public class ServiceService : IServiceService
         return await _serviceRepository.Add(service);
     }
 
-    public async Task<Service?> Edit(ServiceEditDto serviceDto)
+    public async Task<Service?> Edit(Guid serviceId, ServiceEditDto serviceDto)
     {
-        var serviceFromDb = await _serviceRepository.GetById(serviceDto.Id);
+        var serviceFromDb = await _serviceRepository.GetById(serviceId);
         if (serviceFromDb is null)
         {
             return null;
@@ -48,7 +48,7 @@ public class ServiceService : IServiceService
 
         var service = new Service
         {
-            Id = serviceDto.Id,
+            Id = serviceId,
             Name = serviceDto.Name ?? serviceFromDb.Name,
             Duration = serviceDto.Duration ?? serviceFromDb.Duration,
             Price = serviceDto.Price ?? serviceFromDb.Price,

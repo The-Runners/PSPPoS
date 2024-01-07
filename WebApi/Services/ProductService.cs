@@ -31,9 +31,9 @@ public class ProductService : IProductService
         return await _productRepository.GetById(productId);
     }
 
-    public async Task<Product?> Edit(ProductEditDto productDto)
+    public async Task<Product?> Edit(Guid productId, ProductEditDto productDto)
     {
-        var productFromDb = await _productRepository.GetById(productDto.Id);
+        var productFromDb = await _productRepository.GetById(productId);
         if (productFromDb is null)
         {
             return null;
@@ -41,7 +41,7 @@ public class ProductService : IProductService
 
         var product = new Product
         {
-            Id = productDto.Id,
+            Id = productId,
             Name = productDto.Name ?? productFromDb.Name,
             Price = productDto.Price ?? productFromDb.Price,
         };

@@ -80,10 +80,9 @@ public class ReservationService : IReservationService
 
         var orderEdit = new OrderEditDto
         {
-            Id = reservation.OrderId,
             Status = OrderStatus.Cancelled,
         };
-        await _orderService.Edit(orderEdit);
+        await _orderService.Edit(reservation.OrderId, orderEdit);
     }
 
     private async Task<bool> CanBookTimeSlot(Guid employeeId, TimeSlot bookTime)

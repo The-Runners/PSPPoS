@@ -9,7 +9,7 @@ public interface IProductService
 
     Task<Product?> GetProductById(Guid productId);
 
-    Task<Product?> Edit(ProductEditDto productDto);
+    Task<Product?> Edit(Guid productId, ProductEditDto productDto);
 
     Task Delete(Guid productId);
 }
