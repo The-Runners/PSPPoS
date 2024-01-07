@@ -15,12 +15,14 @@ public static class ServicesExtensions
         services.AddScoped<IGenericRepository<Customer>, CustomerRepository>();
         services.AddScoped<IGenericRepository<Employee>, EmployeeRepository>();
         services.AddScoped<IGenericRepository<Product>, ProductRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IServiceRepository, ServiceRepository>();
     }
 
     public static void AddApplicationServices(this IServiceCollection services)
     {
+        services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IOrderProductService, OrderProductService>();
         services.AddScoped<IOrderService, OrderService>();
