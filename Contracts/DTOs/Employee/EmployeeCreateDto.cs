@@ -1,4 +1,5 @@
 ﻿namespace Contracts.DTOs.Employee;
+
 public class EmployeeCreateDto
 {
     public required TimeSpan StartTime { get; set; }

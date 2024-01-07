@@ -29,10 +29,14 @@ public class EmployeeService : IEmployeeService
 
     public async Task<IEnumerable<TimeSlot>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod)
     {
-
         var orderFilter = new OrderFilter
         {
-            OrderStatuses = new List<OrderStatus> { OrderStatus.Completed, OrderStatus.Ordered, OrderStatus.Created },
+            OrderStatuses = new List<OrderStatus>
+            {
+                OrderStatus.Completed,
+                OrderStatus.Ordered,
+                OrderStatus.Created,
+            },
             EndDate = timePeriod.EndTime,
             EmployeeId = employeeId,
         };
@@ -54,10 +58,10 @@ public class EmployeeService : IEmployeeService
 
         reservations = reservations.OrderBy(r => r.StartTime).ToList();
 
-        List<TimeSlot> availableTimeSlots = new List<TimeSlot>();
-        DateTime availableStart = timePeriod.StartTime;
+        var availableTimeSlots = new List<TimeSlot>();
+        var availableStart = timePeriod.StartTime;
 
-        foreach (Reservation reservation in reservations)
+        foreach (var reservation in reservations)
         {
             var reservationStart = reservation.StartTime;
             var reservationDuration = await _serviceRepository.GetServiceDuration(employeeId);
@@ -68,7 +72,7 @@ public class EmployeeService : IEmployeeService
                 availableTimeSlots.Add(new TimeSlot
                 {
                     StartTime = availableStart,
-                    EndTime = reservationStart
+                    EndTime = reservationStart,
                 });
             }
 
@@ -80,7 +84,7 @@ public class EmployeeService : IEmployeeService
             availableTimeSlots.Add(new TimeSlot
             {
                 StartTime = availableStart,
-                EndTime = timePeriod.EndTime
+                EndTime = timePeriod.EndTime,
             });
         }
 
@@ -94,11 +98,11 @@ public class EmployeeService : IEmployeeService
             throw new InvalidTimeException("Start time is later then the end time.");
         }
 
-        Employee employee = new()
+        var employee = new Employee
         {
             Id = Guid.NewGuid(),
             StartTime = employeeDto.StartTime,
-            EndTime = employeeDto.EndTime
+            EndTime = employeeDto.EndTime,
         };
         return await _employeeRepository.Add(employee);
     }
@@ -106,5 +110,33 @@ public class EmployeeService : IEmployeeService
     private static bool IsStartTimeValid(TimeSpan startTime, TimeSpan endTime)
     {
         return startTime < endTime;
+    }
+
+    public async Task<Employee?> GetById(Guid employeeId)
+    {
+        return await _employeeRepository.GetById(employeeId);
+    }
+
+    public async Task<Employee?> Edit(EmployeeEditDto employeeDto)
+    {
+        var employeeFromDb = await _employeeRepository.GetById(employeeDto.Id);
+        if (employeeFromDb is null)
+        {
+            return null;
+        }
+
+        var employee = new Employee
+        {
+            Id = employeeDto.Id,
+            StartTime = employeeDto.StartTime ?? employeeFromDb.StartTime,
+            EndTime = employeeDto.EndTime ?? employeeFromDb.EndTime,
+        };
+
+        return await _employeeRepository.Update(employee);
+    }
+
+    public async Task Delete(Guid employeeId)
+    {
+        await _employeeRepository.Delete(employeeId);
     }
 }

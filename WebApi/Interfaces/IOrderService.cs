@@ -6,8 +6,6 @@ namespace WebApi.Interfaces;
 
 public interface IOrderService
 {
-    Task<Order> CreateEmptyOrder(EmptyOrderCreateDto orderDto);
-
     Task AddProductsToOrder(OrderProductsDto products);
 
     Task RemoveProductsFromOrder(OrderProductsDto products);
@@ -16,7 +14,8 @@ public interface IOrderService
 
     Task<OrderFinalDto> GenerateFinalOrderModel(Order order);
 
-    Task ApplyOrderDiscount(Guid orderId, decimal discount);
+    // Order CRUD operations
+    Task<Order> CreateEmptyOrder(EmptyOrderCreateDto orderDto);
 
-    Task AddTip(Guid orderId, decimal tip);
+    Task<Order?> Edit(OrderEditDto orderDto);
 }

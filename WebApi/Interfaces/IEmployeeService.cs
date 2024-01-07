@@ -5,7 +5,14 @@ namespace WebApi.Interfaces;
 
 public interface IEmployeeService
 {
+    Task<IEnumerable<TimeSlot>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod);
+
+    // Employee CRUD operations
     Task<Employee> Create(EmployeeCreateDto employeeDto);
 
-    Task<IEnumerable<TimeSlot>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod);
+    Task<Employee?> GetById(Guid employeeId);
+
+    Task<Employee?> Edit(EmployeeEditDto employeeDto);
+
+    Task Delete(Guid employeeId);
 }

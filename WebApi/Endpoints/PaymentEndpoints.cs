@@ -1,7 +1,4 @@
 ﻿using Contracts.DTOs.Payment;
-using Domain.Enums;
-using Domain.Models;
-using Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 using WebApi.Interfaces;

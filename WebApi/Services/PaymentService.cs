@@ -21,12 +21,6 @@ public class PaymentService : IPaymentService
         _paymentRepository = paymentRepository;
     }
 
-    private async ValueTask<decimal> GetPaidAmountAsync(Guid orderId)
-    {
-        var payments = await _paymentRepository.GetOrderPaymentsAsync(orderId);
-        return payments.Select(x => x.Amount).DefaultIfEmpty(0).Sum();
-    }
-
     public async Task<Either<DomainException, Payment>> AddPaymentAsync(PaymentCreateDto model) =>
         await ValidatePaymentCreateDtoAsync(model).MatchAsync(
             error => Task.FromResult(Either<DomainException, Payment>.Left(error)),
@@ -44,6 +38,12 @@ public class PaymentService : IPaymentService
 
                 return Either<DomainException, Payment>.Right(payment);
             });
+
+    public async ValueTask<Either<DomainException, Payment>> GetPaymentAsync(Guid id)
+    {
+        var result = await _paymentRepository.GetById(id);
+        return result is null ? new NotFoundException(nameof(Payment), id) : result;
+    }
 
     private async Task<Option<DomainException>> ValidatePaymentCreateDtoAsync(PaymentCreateDto model)
     {
@@ -69,9 +69,9 @@ public class PaymentService : IPaymentService
         return Option<DomainException>.None;
     }
 
-    public async ValueTask<Either<DomainException, Payment>> GetPaymentAsync(Guid id)
+    private async ValueTask<decimal> GetPaidAmountAsync(Guid orderId)
     {
-        var result = await _paymentRepository.GetById(id);
-        return result is null ? new NotFoundException(nameof(Payment), id) : result;
+        var payments = await _paymentRepository.GetOrderPaymentsAsync(orderId);
+        return payments.Select(x => x.Amount).DefaultIfEmpty(0).Sum();
     }
 }

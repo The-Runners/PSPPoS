@@ -143,28 +143,26 @@ public class OrderService : IOrderService
         return price;
     }
 
-    public async Task ApplyOrderDiscount(Guid orderId, decimal discount)
+    public async Task<Order?> Edit(OrderEditDto orderDto)
     {
-        var order = await GetOrderById(orderId);
-        order.Discount = discount;
-        await _orderRepository.Update(order);
-    }
-
-    public async Task AddTip(Guid orderId, decimal tip)
-    {
-        var order = await GetOrderById(orderId);
-        order.Tip = tip;
-        await _orderRepository.Update(order);
-    }
-
-    private async Task<Order> GetOrderById(Guid orderId)
-    {
-        var order = await _orderRepository.GetById(orderId);
-        if (order is null)
+        var orderFromDb = await _orderRepository.GetById(orderDto.Id);
+        if (orderFromDb is null)
         {
-            throw new NullReferenceException("Wrong orderID given to apply discount");
+            return null;
         }
-        return order;
+
+        var order = new Order
+        {
+            Id = orderDto.Id,
+            CustomerId = orderDto.CustomerId ?? orderFromDb.CustomerId,
+            EmployeeId = orderDto.EmployeeId ?? orderFromDb.EmployeeId,
+            Status = orderDto.Status ?? orderFromDb.Status,
+            Price = orderDto.Price ?? orderFromDb.Price,
+            Discount = orderDto.Discount ?? orderFromDb.Discount,
+            Tip = orderDto.Tip ?? orderFromDb.Tip,
+        };
+
+        return await _orderRepository.Update(order);
     }
 
     private async Task<decimal> GetOrderProductsPrice(IEnumerable<OrderProduct> orderProducts, decimal price)

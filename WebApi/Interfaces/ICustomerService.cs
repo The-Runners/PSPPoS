@@ -1,16 +1,16 @@
 ﻿using Domain.Models;
 using Contracts.DTOs.Customer;
 
-namespace WebApi.Interfaces
+namespace WebApi.Interfaces;
+
+public interface ICustomerService
 {
-    public interface ICustomerService
-    {
-        Task<Customer> Create(CustomerCreateDto customer);
+    // Customer CRUD operations
+    Task<Customer> Create(CustomerCreateDto customer);
         
-        Task<Customer?> GetCustomerById(Guid customerId);
+    Task<Customer?> GetCustomerById(Guid customerId);
         
-        Task<Customer?> Edit(CustomerEditDto customer);
+    Task<Customer?> Edit(CustomerEditDto customer);
         
-        Task Delete(Guid customerId);
-    }
+    Task Delete(Guid customerId);
 }
