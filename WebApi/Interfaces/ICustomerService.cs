@@ -1,16 +1,19 @@
-﻿using Domain.Models;
-using Contracts.DTOs.Customer;
+﻿using Contracts.DTOs;
+using Domain.Exceptions;
+using Domain.Models;
+using LanguageExt;
 
 namespace WebApi.Interfaces;
 
 public interface ICustomerService
 {
-    // Customer CRUD operations
-    Task<Customer> Create(CustomerCreateDto customer);
-        
-    Task<Customer?> GetCustomerById(Guid customerId);
-        
-    Task<Customer?> Edit(CustomerEditDto customer);
-        
-    Task Delete(Guid customerId);
+    Task<Either<DomainException, Customer>> AddAsync(CustomerCreateDto customer);
+
+    Task<Either<DomainException, Customer>> GetByIdAsync(Guid customerId);
+
+    Task<IEnumerable<Customer>> ListAsync(int offset, int limit);
+
+    Task<Either<DomainException, Customer>> UpdateAsync(Guid id, CustomerUpdateDto customerUpdateDto);
+
+    Task<Either<DomainException, Unit>> Delete(Guid id);
 }

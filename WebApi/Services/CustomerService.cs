@@ -1,6 +1,8 @@
-﻿using Contracts.DTOs.Customer;
+﻿using Contracts.DTOs;
+using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
+using LanguageExt;
 using WebApi.Interfaces;
 
 namespace WebApi.Services;
@@ -14,35 +16,48 @@ public class CustomerService : ICustomerService
         _customerRepository = customerRepository;
     }
 
-    public async Task<Customer> Create(CustomerCreateDto customerDto)
+    public async Task<Either<DomainException, Customer>> AddAsync(CustomerCreateDto customerCreateDto)
     {
-        var customer = new Customer
+        if (customerCreateDto.LoyaltyDiscount is < 0 or > 1)
+            return new ValidationException("Loyalty discount out of range [0, 1].");
+
+        return await _customerRepository.Add(new Customer
         {
             Id = Guid.NewGuid(),
-            LoyaltyDiscount = customerDto.LoyaltyDiscount,
-        };
-
-        return await _customerRepository.Add(customer);
-    }
-        
-    public async Task<Customer?> GetCustomerById(Guid customerId)
-    {
-        return await _customerRepository.GetById(customerId);
+            LoyaltyDiscount = customerCreateDto.LoyaltyDiscount,
+            CreatedAt = DateTimeOffset.UtcNow
+        });
     }
 
-    public async Task<Customer?> Edit(CustomerEditDto customerDto)
+    public async Task<Either<DomainException, Customer>> GetByIdAsync(Guid customerId)
     {
-        var customer = new Customer
+        var result = await _customerRepository.GetById(customerId);
+
+        return result is null
+            ? new NotFoundException(nameof(Customer), customerId)
+            : result;
+    }
+
+    public async Task<IEnumerable<Customer>> ListAsync(int offset, int limit)
+    {
+        return await _customerRepository.ListAsync(offset, limit);
+    }
+
+    public async Task<Either<DomainException, Customer>> UpdateAsync(Guid id, CustomerUpdateDto customerUpdateDto) =>
+        await GetByIdAsync(id).BindAsync<DomainException, Customer, Customer>(async customer =>
         {
-            Id = customerDto.Id,
-            LoyaltyDiscount = customerDto.LoyaltyDiscount,
-        };
-            
-        return await _customerRepository.Update(customer);
-    }
+            customer.LoyaltyDiscount = customerUpdateDto.LoyaltyDiscount;
 
-    public async Task Delete(Guid customerId)
-    {
-        await _customerRepository.Delete(customerId);
-    }
+            if (customerUpdateDto.LoyaltyDiscount is < 0 or > 1)
+                return new ValidationException("Loyalty discount out of range [0, 1].");
+
+            await _customerRepository.SaveChangesAsync();
+
+            return customer;
+        });
+
+    public async Task<Either<DomainException, Unit>> Delete(Guid id) =>
+        await GetByIdAsync(id)
+        .MapAsync(async _ => await _customerRepository.Delete(id))
+        .Map(_ => Unit.Default);
 }

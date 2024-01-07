@@ -1,10 +1,10 @@
-﻿namespace Contracts.DTOs.Customer;
+﻿namespace Contracts.DTOs;
 
-public class CustomerModelDto // Need to create CustomerService to add customers
+public class CustomerModelDto
 {
-    public Guid Id { get; init; }
+    public required Guid Id { get; init; }
 
-    public decimal LoyaltyDiscount { get; init; }
+    public required decimal LoyaltyDiscount { get; init; }
 
-    public DateTimeOffset CreatedAt { get; init; }
+    public required DateTimeOffset CreatedAt { get; init; }
 }

@@ -11,4 +11,7 @@ public static class EitherExtensions
             error => error is NotFoundException
                 ? Results.NotFound(error.Message)
                 : Results.BadRequest(error.Message));
+
+    public static async Task<IResult> ToHttpResult<T>(this Task<Either<DomainException, T>> task) =>
+        (await task).ToHttpResult();
 }
