@@ -52,7 +52,7 @@ app.MapPaymentEndpoints();
 // Will need fixing
 //app.MapOrderEndpoints();
 //app.MapProductEndpoints();
-//app.MapCustomerEndpoints();
+app.MapCustomerEndpoints();
 
 using var scope = app.Services.CreateScope();
 using var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();

@@ -14,10 +14,11 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         _table = _context.Set<T>();
     }
 
-    public async Task<IEnumerable<T>?> GetAll()
-    {
-        return await _table.ToListAsync();
-    }
+    public async Task<IEnumerable<T>> ListAsync(int offset, int limit) =>
+        await _table
+        .Skip(offset)
+        .Take(limit)
+        .ToListAsync();
 
     public async Task<T?> GetById(Guid? id)
     {
@@ -47,6 +48,11 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         }
 
         _table.Remove(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task SaveChangesAsync()
+    {
         await _context.SaveChangesAsync();
     }
 }
