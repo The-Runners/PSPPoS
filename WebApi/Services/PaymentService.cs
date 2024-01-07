@@ -1,4 +1,4 @@
-﻿using Contracts.DTOs.Payment;
+﻿using Contracts.DTOs;
 using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;

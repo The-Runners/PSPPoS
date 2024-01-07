@@ -1,8 +1,10 @@
-﻿namespace Contracts.DTOs.Customer;
+﻿using Domain.Models;
+
+namespace Contracts.DTOs;
 
 public static class CustomerExtensions
 {
-    public static CustomerModelDto ToModelDto(this Domain.Models.Customer customer) => new()
+    public static CustomerModelDto ToModelDto(this Customer customer) => new()
     {
         Id = customer.Id,
         CreatedAt = customer.CreatedAt,

@@ -1,4 +1,4 @@
-﻿namespace Contracts.DTOs.Product;
+﻿namespace Contracts.DTOs;
 
 public class ProductEditDto
 {

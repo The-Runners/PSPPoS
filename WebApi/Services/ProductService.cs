@@ -1,4 +1,4 @@
-﻿using Contracts.DTOs.Product;
+﻿using Contracts.DTOs;
 using Domain.Models;
 using Infrastructure.Interfaces;
 using WebApi.Interfaces;

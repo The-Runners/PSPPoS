@@ -1,4 +1,4 @@
-﻿using Contracts.DTOs.Employee;
+﻿using Contracts.DTOs;
 using Domain.Models;
 
 namespace WebApi.Interfaces;
@@ -7,7 +7,6 @@ public interface IEmployeeService
 {
     Task<IEnumerable<TimeSlot>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod);
 
-    // Employee CRUD operations
     Task<Employee> Create(EmployeeCreateDto employeeDto);
 
     Task<Employee?> GetById(Guid employeeId);

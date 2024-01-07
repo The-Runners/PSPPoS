@@ -1,4 +1,4 @@
-﻿namespace Contracts.DTOs.Customer;
+﻿namespace Contracts.DTOs;
 
 public class CustomerModelDto
 {

@@ -1,5 +1,4 @@
-﻿using Contracts.DTOs.Order;
-using Contracts.DTOs.OrderProduct;
+﻿using Contracts.DTOs;
 using Domain.Models;
 
 namespace WebApi.Interfaces;
@@ -14,7 +13,6 @@ public interface IOrderService
 
     Task<OrderFinalDto> GenerateFinalOrderModel(Order order);
 
-    // Order CRUD operations
     Task<Order> CreateEmptyOrder(EmptyOrderCreateDto orderDto);
 
     Task<Order?> Edit(OrderEditDto orderDto);

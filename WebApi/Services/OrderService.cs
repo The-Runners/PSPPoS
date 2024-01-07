@@ -1,6 +1,4 @@
-﻿using Contracts.DTOs.Order;
-using Contracts.DTOs.OrderProduct;
-using Contracts.DTOs.Reservation;
+﻿using Contracts.DTOs;
 using Domain.Enums;
 using Domain.Models;
 using Infrastructure.Interfaces;

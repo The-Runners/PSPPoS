@@ -1,6 +1,6 @@
 ﻿using Domain.Enums;
 
-namespace Contracts.DTOs.Order;
+namespace Contracts.DTOs;
 
 public class OrderEditDto
 {

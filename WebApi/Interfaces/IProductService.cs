@@ -1,11 +1,10 @@
-﻿using Contracts.DTOs.Product;
+﻿using Contracts.DTOs;
 using Domain.Models;
 
 namespace WebApi.Interfaces;
 
 public interface IProductService
 {
-    // Product CRUD operations
     Task<Product> Create(ProductCreateDto productDto);
 
     Task<Product?> GetProductById(Guid productId);

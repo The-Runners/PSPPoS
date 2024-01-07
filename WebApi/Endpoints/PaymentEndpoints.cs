@@ -1,4 +1,4 @@
-﻿using Contracts.DTOs.Payment;
+﻿using Contracts.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 using WebApi.Interfaces;

@@ -1,5 +1,4 @@
-﻿using Contracts.DTOs.Order;
-using Contracts.DTOs.Reservation;
+﻿using Contracts.DTOs;
 using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;

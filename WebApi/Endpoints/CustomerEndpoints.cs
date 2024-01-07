@@ -1,6 +1,4 @@
 ﻿using Contracts.DTOs;
-using Contracts.DTOs.Customer;
-using LanguageExt;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 using WebApi.Interfaces;

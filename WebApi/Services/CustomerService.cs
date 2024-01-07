@@ -1,4 +1,4 @@
-﻿using Contracts.DTOs.Customer;
+﻿using Contracts.DTOs;
 using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;

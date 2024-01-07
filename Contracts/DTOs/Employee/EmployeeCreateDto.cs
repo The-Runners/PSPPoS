@@ -1,4 +1,4 @@
-﻿namespace Contracts.DTOs.Employee;
+﻿namespace Contracts.DTOs;
 
 public class EmployeeCreateDto
 {

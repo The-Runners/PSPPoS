@@ -1,4 +1,4 @@
-﻿namespace Contracts.DTOs.Service;
+﻿namespace Contracts.DTOs;
 
 public class ServiceEditDto
 {

@@ -1,4 +1,4 @@
-﻿using Contracts.DTOs.Customer;
+﻿using Contracts.DTOs;
 using Domain.Exceptions;
 using Domain.Models;
 using LanguageExt;
@@ -7,7 +7,6 @@ namespace WebApi.Interfaces;
 
 public interface ICustomerService
 {
-    // Customer CRUD operations
     Task<Either<DomainException, Customer>> AddAsync(CustomerCreateDto customerDto);
 
     Task<Either<DomainException, Customer>> GetByIdAsync(Guid customerId);

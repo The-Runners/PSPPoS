@@ -1,4 +1,4 @@
-﻿namespace Contracts.DTOs.OrderProduct;
+﻿namespace Contracts.DTOs;
 
 public class OrderProductSingleDto
 {

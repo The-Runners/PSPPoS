@@ -4,5 +4,5 @@ namespace Infrastructure.Interfaces;
 
 public interface IPaymentRepository : IGenericRepository<Payment>
 {
-    ValueTask<IEnumerable<Payment>> GetOrderPaymentsAsync(Guid OrderId);
+    ValueTask<IEnumerable<Payment>> GetOrderPaymentsAsync(Guid orderId);
 }

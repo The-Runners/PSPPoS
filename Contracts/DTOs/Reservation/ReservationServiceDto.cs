@@ -1,4 +1,4 @@
-﻿namespace Contracts.DTOs.Reservation;
+﻿namespace Contracts.DTOs;
 
 public class ReservationServiceDto
 {
