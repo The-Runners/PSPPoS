@@ -32,12 +32,7 @@ public class EmployeeService : IEmployeeService
 
         var orderFilter = new OrderFilter
         {
-            OrderStatuses = new List<OrderStatus> 
-            { 
-                OrderStatus.Paid,
-                OrderStatus.PartiallyPaid,
-                OrderStatus.Created
-            },
+            OrderStatuses = new List<OrderStatus> { OrderStatus.Completed, OrderStatus.Ordered, OrderStatus.Created },
             EndDate = timePeriod.EndTime,
             EmployeeId = employeeId,
         };

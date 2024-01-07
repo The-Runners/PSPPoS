@@ -1,19 +1,6 @@
 ﻿namespace Domain.Exceptions;
 
-public class TimeSlotUnavailableException : Exception
+public class TimeSlotUnavailableException(string message) : DomainException(message)
 {
-    public TimeSlotUnavailableException()
-    {
-    }
 
-    public TimeSlotUnavailableException(string message)
-        : base(message)
-    {
-    }
-
-    public TimeSlotUnavailableException(string message, Exception inner)
-        : base(message, inner)
-    {
-    }
 }
-
