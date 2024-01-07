@@ -1,5 +1,6 @@
 ﻿using Contracts.DTOs.Order;
 using Contracts.DTOs.Reservation;
+using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
@@ -67,23 +68,33 @@ public class ReservationService : IReservationService
     }
 
     public async Task CancelReservation(Guid reservationId)
-    { 
+    {
+        var reservation = await _reservationRepository.GetById(reservationId);
+        if (reservation is null)
+        {
+            throw new NullReferenceException("Reservation with the given id does not exist.");
+        }
         /* We just delete the reservation - because an order may have multiple reservations
          * Available times are updated when requesting availble times for employee
          */
         await _reservationRepository.Delete(reservationId);
 
-        //TODO: change order status to cancelled.
+        var orderEdit = new OrderEditDto
+        {
+            Id = reservation.OrderId,
+            Status = OrderStatus.Cancelled,
+        };
+        await _orderService.Edit(orderEdit);
     }
 
     private async Task<bool> CanBookTimeSlot(Guid employeeId, TimeSlot bookTime)
     {
         var availableTimes = await _employeeService.GetAvailableTimeSlots(employeeId, bookTime);
-        
         if (availableTimes.Count() == 1)
         {
             return true;
         }
+
         return false;
     }
 

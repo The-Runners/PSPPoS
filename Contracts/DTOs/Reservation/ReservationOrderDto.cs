@@ -2,15 +2,15 @@
 
 public class ReservationOrderDto
 {
-    required public Guid CustomerId { get; set; }
+    public required Guid CustomerId { get; set; }
 
-    required public Guid EmployeeId { get; set; }
+    public required Guid EmployeeId { get; set; }
 
-    required public Guid ServiceId { get; set; }
+    public required Guid ServiceId { get; set; }
 
-    required public DateTime TimeSlot { get; set; }
+    public required DateTime TimeSlot { get; set; }
 
-    required public decimal Price { get; set; }
+    public required decimal Price { get; set; }
 
     public decimal? Discount { get; set; }
 

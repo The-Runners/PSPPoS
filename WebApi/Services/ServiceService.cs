@@ -19,7 +19,7 @@ public class ServiceService : IServiceService
         _employeeService = employeeService;
     }
 
-    public async Task<Service?> Get(Guid serviceId)
+    public async Task<Service?> GetServiceById(Guid serviceId)
     { 
         return await _serviceRepository.GetById(serviceId);
     }
@@ -34,19 +34,27 @@ public class ServiceService : IServiceService
             Price = serviceDto.Price,
             Employees = serviceDto.Employees 
         };
+
         return await _serviceRepository.Add(service);
     }
 
-    public async Task<Service> Update(ServiceModelDto serviceDto) 
+    public async Task<Service?> Edit(ServiceEditDto serviceDto)
     {
+        var serviceFromDb = await _serviceRepository.GetById(serviceDto.Id);
+        if (serviceFromDb is null)
+        {
+            return null;
+        }
+
         var service = new Service
         {
             Id = serviceDto.Id,
-            Name = serviceDto.Name,
-            Duration = serviceDto.Duration,
-            Price = serviceDto.Price,
-            Employees = serviceDto.Employees
+            Name = serviceDto.Name ?? serviceFromDb.Name,
+            Duration = serviceDto.Duration ?? serviceFromDb.Duration,
+            Price = serviceDto.Price ?? serviceFromDb.Price,
+            Employees = serviceDto.Employees ?? serviceFromDb.Employees,
         };
+
         return await _serviceRepository.Update(service);
     }
 

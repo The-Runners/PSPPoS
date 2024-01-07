@@ -93,7 +93,7 @@ public class EmployeeService : IEmployeeService
 
     public async Task<Employee> Create(EmployeeCreateDto employeeDto)
     {
-        if (IsStartTimeValid(employeeDto.StartTime, employeeDto.EndTime))
+        if (!IsStartTimeValid(employeeDto.StartTime, employeeDto.EndTime))
         {
             throw new InvalidTimeException("Start time is later then the end time.");
         }

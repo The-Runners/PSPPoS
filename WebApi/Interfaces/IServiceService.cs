@@ -7,11 +7,12 @@ public interface IServiceService
 {
     Task<IEnumerable<TimeSlot>> GetAvailableTimeSlots(Guid serviceId, TimeSlot timePeriod);
 
-    public Task<Service?> Get(Guid serviceId);
+    // Service CRUD operations
+    Task<Service?> GetServiceById(Guid serviceId);
 
-    public Task<Service> Create(ServiceCreateDto serviceDto);
+    Task<Service> Create(ServiceCreateDto serviceDto);
 
-    public Task<Service> Update(ServiceModelDto serviceDto);
+    Task<Service?> Edit(ServiceEditDto serviceDto);
 
-    public Task Delete(Guid serviceId);
+    Task Delete(Guid serviceId);
 }
