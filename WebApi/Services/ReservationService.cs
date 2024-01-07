@@ -71,10 +71,10 @@ public class ReservationService : IReservationService
         var reservation = await _reservationRepository.GetById(reservationId);
         if (reservation is null)
         {
-            throw new NullReferenceException("Reservation with the given id does not exist.");
+            throw new NotFoundException(nameof(Reservation), reservationId);
         }
         /* We just delete the reservation - because an order may have multiple reservations
-         * Available times are updated when requesting availble times for employee
+         * Available times are updated when requesting available times for employee
          */
         await _reservationRepository.Delete(reservationId);
 

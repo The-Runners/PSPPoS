@@ -1,4 +1,6 @@
-﻿using Contracts.DTOs;
+﻿using System.Reflection.Metadata.Ecma335;
+using Contracts.DTOs;
+using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
 using WebApi.Interfaces;
@@ -26,6 +28,11 @@ public class ServiceService : IServiceService
 
     public async Task<Service> Create(ServiceCreateDto serviceDto)
     {
+        if (!IsPriceValid(serviceDto.Price) || !IsDurationValid(serviceDto.Duration))
+        {
+            throw new ValidationException("The given service to be created is invalid.");
+        }
+
         var service = new Service
         {
             Id = Guid.NewGuid(),
@@ -46,6 +53,12 @@ public class ServiceService : IServiceService
             return null;
         }
 
+        if ((serviceDto.Price is not null && !IsPriceValid(serviceDto.Price)) 
+            || (serviceDto.Duration is not null && !IsDurationValid(serviceDto.Duration)))
+        {
+            throw new ValidationException("The given service edit is invalid.");
+        }
+
         var service = new Service
         {
             Id = serviceId,
@@ -56,6 +69,16 @@ public class ServiceService : IServiceService
         };
 
         return await _serviceRepository.Update(service);
+    }
+
+    private static bool IsPriceValid(decimal? price)
+    {
+        return price >= 0;
+    }
+
+    private static bool IsDurationValid(TimeSpan? duration)
+    {
+        return duration?.TotalMinutes > 0;
     }
 
     public async Task Delete(Guid serviceId)
