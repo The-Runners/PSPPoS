@@ -19,6 +19,8 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
 
     public required DbSet<Employee> Employees { get; init; }
 
+    public required DbSet<ServiceEmployee> ServiceEmployees { get; init; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var product = modelBuilder.Entity<Product>();
@@ -37,6 +39,11 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         orderProduct.HasOne<Order>().WithMany().HasForeignKey(x => x.OrderId);
         orderProduct.HasOne<Product>().WithMany().HasForeignKey(x => x.ProductId);
         orderProduct.HasKey(x => new { x.OrderId, x.ProductId });
+
+        var serviceEmployee = modelBuilder.Entity<ServiceEmployee>();
+        serviceEmployee.HasOne<Employee>().WithMany().HasForeignKey(x => x.EmployeeId);
+        serviceEmployee.HasOne<Service>().WithMany().HasForeignKey(x => x.ServiceId);
+        serviceEmployee.HasKey(x => new { x.EmployeeId, x.ServiceId });
 
         var customer = modelBuilder.Entity<Customer>();
         customer.HasKey(x => x.Id);

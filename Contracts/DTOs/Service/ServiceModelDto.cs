@@ -1,6 +1,6 @@
-﻿namespace Domain.Models;
+﻿namespace Contracts.DTOs;
 
-public class Service
+public class ServiceModelDto
 {
     public required Guid Id { get; init; }
 

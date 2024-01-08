@@ -4,6 +4,7 @@ using Domain.Exceptions;
 using Domain.Filters;
 using Domain.Models;
 using Infrastructure.Interfaces;
+using LanguageExt;
 using WebApi.Interfaces;
 
 namespace WebApi.Services;
@@ -27,7 +28,7 @@ public class EmployeeService : IEmployeeService
         _reservationRepository = reservationRepository;
     }
 
-    public async Task<IEnumerable<TimeSlot>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod)
+    public async Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod)
     {
         var orderFilter = new OrderFilter
         {
@@ -42,17 +43,18 @@ public class EmployeeService : IEmployeeService
         };
 
         var orders = await _orderRepository.GetFilteredOrders(orderFilter);
-
-        IEnumerable<Reservation>? reservations = new List<Reservation>();
-        if (orders != null)
+        if (orders is null)
         {
-            foreach (Order order in orders)
+            return new NotFoundException(nameof(orders), employeeId);
+        }
+
+        var reservations = new List<Reservation>();
+        foreach (var order in orders)
+        {
+            var newReservations = await _reservationRepository.GetReservationByOrderId(order.Id);
+            if (newReservations is not null)
             {
-                var newReservations = await _reservationRepository.GetReservationByOrderId(order.Id);
-                if (newReservations != null)
-                {
-                    reservations = reservations.Append(newReservations);
-                }
+                reservations.Add(newReservations);
             }
         }
 
@@ -91,11 +93,16 @@ public class EmployeeService : IEmployeeService
         return availableTimeSlots;
     }
 
-    public async Task<Employee> Create(EmployeeCreateDto employeeDto)
+    public async Task<IEnumerable<Employee>> ListAsync(int offset, int limit)
+    {
+        return await _employeeRepository.ListAsync(offset, limit);
+    }
+
+    public async Task<Either<DomainException, Employee>> Create(EmployeeCreateDto employeeDto)
     {
         if (!IsStartTimeValid(employeeDto.StartTime, employeeDto.EndTime))
         {
-            throw new InvalidTimeException("Start time is later then the end time.");
+            return new ValidationException("Employee start time is later than the end time.");
         }
 
         var employee = new Employee
@@ -107,22 +114,23 @@ public class EmployeeService : IEmployeeService
         return await _employeeRepository.Add(employee);
     }
 
-    private static bool IsStartTimeValid(TimeSpan startTime, TimeSpan endTime)
+    private static bool IsStartTimeValid(TimeOnly startTime, TimeOnly endTime)
     {
         return startTime < endTime;
     }
 
-    public async Task<Employee?> GetById(Guid employeeId)
+    public async Task<Either<DomainException, Employee>> GetById(Guid employeeId)
     {
-        return await _employeeRepository.GetById(employeeId);
+        var result = await _employeeRepository.GetById(employeeId);
+        return result is null ? new NotFoundException(nameof(Employee), employeeId) : result;
     }
 
-    public async Task<Employee?> Edit(Guid employeeId, EmployeeEditDto employeeDto)
+    public async Task<Either<DomainException, Employee>> Edit(Guid employeeId, EmployeeEditDto employeeDto)
     {
         var employeeFromDb = await _employeeRepository.GetById(employeeId);
         if (employeeFromDb is null)
         {
-            return null;
+            return new NotFoundException(nameof(Employee), employeeId);
         }
 
         var employee = new Employee
@@ -135,8 +143,10 @@ public class EmployeeService : IEmployeeService
         return await _employeeRepository.Update(employee);
     }
 
-    public async Task Delete(Guid employeeId)
+    public async Task<Either<DomainException, Unit>> Delete(Guid employeeId)
     {
-        await _employeeRepository.Delete(employeeId);
+        return await GetById(employeeId)
+            .MapAsync(async _ => await _employeeRepository.Delete(employeeId))
+            .Map(_ => Unit.Default);
     }
 }

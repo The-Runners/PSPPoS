@@ -1,4 +1,6 @@
-﻿namespace Domain.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Domain.Models;
 
 public class Customer
 {
@@ -6,5 +8,6 @@ public class Customer
 
     public required decimal LoyaltyDiscount { get; set; }
 
-    public required DateTimeOffset CreatedAt { get; init; }
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public DateTimeOffset CreatedAt { get; init; }
 }

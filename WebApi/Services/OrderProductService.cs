@@ -1,4 +1,5 @@
 ﻿using Contracts.DTOs;
+using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
 using WebApi.Interfaces;
@@ -23,7 +24,7 @@ public class OrderProductService : IOrderProductService
         var orderProducts = await _orderProductRepository.GetAllProductsForOrderId(orderId);
         if (orderProducts is null)
         {
-            return null;
+            throw new NotFoundException(nameof(orderProducts), orderId);
         }
         
         return await GenerateModels(orderProducts);
@@ -35,17 +36,20 @@ public class OrderProductService : IOrderProductService
         foreach (var orderProduct in orderProducts)
         {
             var product = await _productRepository.GetById(orderProduct.ProductId);
-            if (product is not null)
+            if (product is null)
             {
-                var orderProductModel = new ProductForOrderDto
-                {
-                    ProductId = product.Id,
-                    Name = product.Name,
-                    Amount = orderProduct.Amount,
-                    UnitPrice = product.Price,
-                };
-                orderProductViewModels.Add(orderProductModel);
+                throw new NotFoundException(nameof(product), orderProduct.ProductId);
             }
+
+            var orderProductModel = new ProductForOrderDto
+            {
+                ProductId = product.Id,
+                Name = product.Name,
+                Amount = orderProduct.Amount,
+                UnitPrice = product.Price,
+            };
+            orderProductViewModels.Add(orderProductModel);
+
         }
 
         return orderProductViewModels;

@@ -18,6 +18,7 @@ public static class ServicesExtensions
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IServiceRepository, ServiceRepository>();
+        services.AddScoped<IServiceEmployeeRepository, ServiceEmployeeRepository>();
     }
 
     public static void AddApplicationServices(this IServiceCollection services)
@@ -30,5 +31,6 @@ public static class ServicesExtensions
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IServiceService, ServiceService>();
+        services.AddScoped<IServiceEmployeeService, ServiceEmployeeService>();
     }
 }

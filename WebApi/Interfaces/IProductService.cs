@@ -1,15 +1,19 @@
 ﻿using Contracts.DTOs;
+using Domain.Exceptions;
 using Domain.Models;
+using LanguageExt;
 
 namespace WebApi.Interfaces;
 
 public interface IProductService
 {
-    Task<Product> Create(ProductCreateDto productDto);
+    Task<IEnumerable<Product>> ListAsync(int offset, int limit);
 
-    Task<Product?> GetProductById(Guid productId);
+    Task<Either<DomainException, Product>> Create(ProductCreateDto productDto);
 
-    Task<Product?> Edit(Guid productId, ProductEditDto productDto);
+    Task<Either<DomainException, Product>> GetProductById(Guid productId);
 
-    Task Delete(Guid productId);
+    Task<Either<DomainException, Product>> Edit(Guid productId, ProductEditDto productDto);
+
+    Task<Either<DomainException, Unit>> Delete(Guid productId);
 }

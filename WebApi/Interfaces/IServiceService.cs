@@ -1,17 +1,23 @@
 ﻿using Contracts.DTOs;
+using Domain.Exceptions;
 using Domain.Models;
+using LanguageExt;
 
 namespace WebApi.Interfaces;
 
 public interface IServiceService
 {
-    Task<IEnumerable<TimeSlot>> GetAvailableTimeSlots(Guid serviceId, TimeSlot timePeriod);
+    Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid serviceId, TimeSlot timePeriod);
 
-    Task<Service?> GetServiceById(Guid serviceId);
+    Task<Either<DomainException, Service>> GetByIdAsync(Guid serviceId);
 
-    Task<Service> Create(ServiceCreateDto serviceDto);
+    Task<IEnumerable<Service>> ListAsync(int offset, int limit);
 
-    Task<Service?> Edit(Guid serviceId, ServiceEditDto serviceDto);
+    Task<Either<DomainException, Service>> AddAsync(ServiceCreateDto serviceDto);
 
-    Task Delete(Guid serviceId);
+    Task<Either<DomainException, Service>> UpdateAsync(Guid serviceId, ServiceEditDto serviceDto);
+
+    Task<Either<DomainException, Unit>> Delete(Guid serviceId);
+
+    Task<Either<DomainException, ServiceEmployee>> AddServiceEmployeeAsync(ServiceEmployeeCreateDto serviceEmployeeDto);
 }

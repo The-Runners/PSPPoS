@@ -1,7 +1,9 @@
 ﻿namespace Contracts.DTOs;
 
-public class EmployeeCreateDto
+public class EmployeeModelDto
 {
+    public required Guid Id { get; set; }
+
     public required TimeOnly StartTime { get; set; }
 
     public required TimeOnly EndTime { get; set; }

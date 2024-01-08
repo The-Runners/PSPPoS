@@ -1,5 +1,7 @@
 ﻿using Contracts.DTOs;
+using Domain.Exceptions;
 using Domain.Models;
+using LanguageExt;
 
 namespace WebApi.Interfaces;
 
@@ -15,5 +17,5 @@ public interface IOrderService
 
     Task<Order> CreateEmptyOrder(EmptyOrderCreateDto orderDto);
 
-    Task<Order?> Edit(Guid orderId, OrderEditDto orderDto);
+    Task<Either<DomainException, Order>> Edit(Guid orderId, OrderEditDto orderDto);
 }
