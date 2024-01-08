@@ -3,6 +3,7 @@ using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
+using LanguageExt;
 using WebApi.Interfaces;
 
 namespace WebApi.Services;
@@ -142,12 +143,12 @@ public class OrderService : IOrderService
         return price;
     }
 
-    public async Task<Order?> Edit(Guid orderId, OrderEditDto orderDto)
+    public async Task<Either<DomainException, Order>> Edit(Guid orderId, OrderEditDto orderDto)
     {
         var orderFromDb = await _orderRepository.GetById(orderId);
         if (orderFromDb is null)
         {
-            return null;
+            return new NotFoundException(nameof(Order), orderId);
         }
 
         var order = new Order
