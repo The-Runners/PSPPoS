@@ -37,6 +37,12 @@ public static class EmployeeEndpoints
             .MapAsync(x => x.ToModelDto())
             .ToHttpResult());
 
+        group.MapDelete("{id}", async (
+            [FromServices] IEmployeeService employeeService,
+            Guid id) => await employeeService
+            .Delete(id)
+            .ToHttpResult());
+
         group.MapGet("{id}/show-available-times", async (
             [FromServices] IEmployeeService employeeService,
             [FromBody] TimeSlot timePeriod,

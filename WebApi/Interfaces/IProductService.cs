@@ -15,5 +15,5 @@ public interface IProductService
 
     Task<Either<DomainException, Product>> Edit(Guid productId, ProductEditDto productDto);
 
-    Task Delete(Guid productId);
+    Task<Either<DomainException, Unit>> Delete(Guid productId);
 }

@@ -35,6 +35,12 @@ public static class ProductEndpoints
             .Edit(id, productDto)
             .MapAsync(x => x.ToModelDto())
             .ToHttpResult());
+
+        group.MapDelete("{id}", async (
+            [FromServices] IProductService productService,
+            Guid id) => await productService
+            .Delete(id)
+            .ToHttpResult());
     }
 
     private static async Task<IResult> ListProducts(

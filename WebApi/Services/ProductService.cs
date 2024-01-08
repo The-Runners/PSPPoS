@@ -2,7 +2,6 @@
 using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
-using Infrastructure.Repositories;
 using LanguageExt;
 using WebApi.Interfaces;
 
@@ -63,8 +62,10 @@ public class ProductService : IProductService
         return await _productRepository.Update(product);
     }
 
-    public async Task Delete(Guid productId)
+    public async Task<Either<DomainException, Unit>> Delete(Guid productId)
     {
-        await _productRepository.Delete(productId);
+        return await GetProductById(productId)
+            .MapAsync(async _ => await _productRepository.Delete(productId))
+            .Map(_ => Unit.Default);
     }
 }

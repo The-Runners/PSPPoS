@@ -17,5 +17,5 @@ public interface IEmployeeService
 
     Task<Either<DomainException, Employee>> Edit(Guid employeeId, EmployeeEditDto employeeDto);
 
-    Task Delete(Guid employeeId);
+    Task<Either<DomainException, Unit>> Delete(Guid employeeId);
 }

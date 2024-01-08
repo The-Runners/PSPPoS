@@ -143,8 +143,10 @@ public class EmployeeService : IEmployeeService
         return await _employeeRepository.Update(employee);
     }
 
-    public async Task Delete(Guid employeeId)
+    public async Task<Either<DomainException, Unit>> Delete(Guid employeeId)
     {
-        await _employeeRepository.Delete(employeeId);
+        return await GetById(employeeId)
+            .MapAsync(async _ => await _employeeRepository.Delete(employeeId))
+            .Map(_ => Unit.Default);
     }
 }
