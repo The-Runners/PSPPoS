@@ -4,6 +4,7 @@ using Domain.Exceptions;
 using Domain.Filters;
 using Domain.Models;
 using Infrastructure.Interfaces;
+using LanguageExt;
 using WebApi.Interfaces;
 
 namespace WebApi.Services;
@@ -43,15 +44,15 @@ public class EmployeeService : IEmployeeService
 
         var orders = await _orderRepository.GetFilteredOrders(orderFilter);
 
-        IEnumerable<Reservation>? reservations = new List<Reservation>();
+        var reservations = new List<Reservation>();
         if (orders != null)
         {
-            foreach (Order order in orders)
+            foreach (var order in orders)
             {
                 var newReservations = await _reservationRepository.GetReservationByOrderId(order.Id);
                 if (newReservations != null)
                 {
-                    reservations = reservations.Append(newReservations);
+                    reservations.Add(newReservations);
                 }
             }
         }
@@ -91,11 +92,16 @@ public class EmployeeService : IEmployeeService
         return availableTimeSlots;
     }
 
-    public async Task<Employee> Create(EmployeeCreateDto employeeDto)
+    public async Task<IEnumerable<Employee>> ListAsync(int offset, int limit)
+    {
+        return await _employeeRepository.ListAsync(offset, limit);
+    }
+
+    public async Task<Either<DomainException, Employee>> Create(EmployeeCreateDto employeeDto)
     {
         if (!IsStartTimeValid(employeeDto.StartTime, employeeDto.EndTime))
         {
-            throw new InvalidTimeException("Start time is later then the end time.");
+            return new ValidationException("Employee start time is later than the end time.");
         }
 
         var employee = new Employee
@@ -112,17 +118,18 @@ public class EmployeeService : IEmployeeService
         return startTime < endTime;
     }
 
-    public async Task<Employee?> GetById(Guid employeeId)
+    public async Task<Either<DomainException, Employee>> GetById(Guid employeeId)
     {
-        return await _employeeRepository.GetById(employeeId);
+        var result = await _employeeRepository.GetById(employeeId);
+        return result is null ? new NotFoundException(nameof(Employee), employeeId) : result;
     }
 
-    public async Task<Employee?> Edit(Guid employeeId, EmployeeEditDto employeeDto)
+    public async Task<Either<DomainException, Employee>> Edit(Guid employeeId, EmployeeEditDto employeeDto)
     {
         var employeeFromDb = await _employeeRepository.GetById(employeeId);
         if (employeeFromDb is null)
         {
-            return null;
+            return new NotFoundException(nameof(Employee), employeeId);
         }
 
         var employee = new Employee

@@ -1,4 +1,5 @@
 ﻿using Contracts.DTOs;
+using Contracts.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 using WebApi.Interfaces;

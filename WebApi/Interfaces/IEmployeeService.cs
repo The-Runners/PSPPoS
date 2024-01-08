@@ -1,5 +1,7 @@
 ﻿using Contracts.DTOs;
+using Domain.Exceptions;
 using Domain.Models;
+using LanguageExt;
 
 namespace WebApi.Interfaces;
 
@@ -7,11 +9,13 @@ public interface IEmployeeService
 {
     Task<IEnumerable<TimeSlot>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod);
 
-    Task<Employee> Create(EmployeeCreateDto employeeDto);
+    Task<IEnumerable<Employee>> ListAsync(int offset, int limit);
 
-    Task<Employee?> GetById(Guid employeeId);
+    Task<Either<DomainException, Employee>> Create(EmployeeCreateDto employeeDto);
 
-    Task<Employee?> Edit(Guid employeeId, EmployeeEditDto employeeDto);
+    Task<Either<DomainException, Employee>> GetById(Guid employeeId);
+
+    Task<Either<DomainException, Employee>> Edit(Guid employeeId, EmployeeEditDto employeeDto);
 
     Task Delete(Guid employeeId);
 }

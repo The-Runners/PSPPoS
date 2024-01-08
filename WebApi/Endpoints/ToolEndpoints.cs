@@ -10,13 +10,7 @@ public static class ToolEndpoints
     {
         var group = app.MapGroup("/").WithTags("Tools");
 
-        group.MapPost("/add-employee", async (
-            [FromServices] IEmployeeService employeeService,
-            EmployeeCreateDto employeeDto) =>
-        {
-            var result = await employeeService.Create(employeeDto);
-            return result;
-        });
+        
 
         group.MapPost("/add-service", async (
             [FromServices] IServiceService serviceService,

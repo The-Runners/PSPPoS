@@ -1,6 +1,7 @@
-﻿using Domain.Models;
+﻿using Contracts.DTOs;
+using Domain.Models;
 
-namespace Contracts.DTOs;
+namespace Contracts.Extensions;
 
 public static class CustomerExtensions
 {

@@ -1,5 +1,8 @@
-﻿using Domain.Models;
+﻿using Contracts.DTOs;
+using Contracts.Extensions;
+using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Extensions;
 using WebApi.Interfaces;
 
 namespace WebApi.Endpoints;
@@ -10,7 +13,31 @@ public static class EmployeeEndpoints
     {
         var group = app.MapGroup("/employee").WithTags("Employees");
 
-        group.MapGet("{id}/show-available-times", async(
+        group.MapGet(string.Empty, ListEmployees);
+
+        group.MapGet("{id}", (
+            [FromServices] IEmployeeService employeeService,
+            Guid id) => employeeService
+            .GetById(id)
+            .MapAsync(x => x.ToModelDto())
+            .ToHttpResult());
+
+        group.MapPost(string.Empty, async (
+            [FromServices] IEmployeeService employeeService,
+            EmployeeCreateDto employeeDto) => await employeeService
+            .Create(employeeDto)
+            .MapAsync(x => x.ToModelDto())
+            .ToHttpResult());
+
+        group.MapPut("{id}", async (
+            [FromServices] IEmployeeService employeeService,
+            Guid id,
+            EmployeeEditDto employeeDto) => await employeeService
+            .Edit(id, employeeDto)
+            .MapAsync(x => x.ToModelDto())
+            .ToHttpResult());
+
+        group.MapGet("{id}/show-available-times", async (
             [FromServices] IEmployeeService employeeService,
             [FromBody] TimeSlot timePeriod,
             Guid id) =>
@@ -18,5 +45,14 @@ public static class EmployeeEndpoints
             var result = await employeeService.GetAvailableTimeSlots(id, timePeriod);
             return result;
         });
+    }
+
+    private static async Task<IResult> ListEmployees(
+        [FromServices] ICustomerService service,
+        int offset = 0,
+        int limit = 100)
+    {
+        var customers = await service.ListAsync(offset, limit);
+        return Results.Ok(customers.Select(x => x.ToModelDto()));
     }
 }
