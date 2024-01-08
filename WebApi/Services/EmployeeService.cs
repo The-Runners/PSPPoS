@@ -114,7 +114,7 @@ public class EmployeeService : IEmployeeService
         return await _employeeRepository.Add(employee);
     }
 
-    private static bool IsStartTimeValid(TimeSpan startTime, TimeSpan endTime)
+    private static bool IsStartTimeValid(TimeOnly startTime, TimeOnly endTime)
     {
         return startTime < endTime;
     }
