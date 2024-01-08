@@ -28,7 +28,7 @@ public class EmployeeService : IEmployeeService
         _reservationRepository = reservationRepository;
     }
 
-    public async Task<IEnumerable<TimeSlot>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod)
+    public async Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod)
     {
         var orderFilter = new OrderFilter
         {
@@ -43,17 +43,18 @@ public class EmployeeService : IEmployeeService
         };
 
         var orders = await _orderRepository.GetFilteredOrders(orderFilter);
+        if (orders is null)
+        {
+            return new NotFoundException(nameof(orders), employeeId);
+        }
 
         var reservations = new List<Reservation>();
-        if (orders != null)
+        foreach (var order in orders)
         {
-            foreach (var order in orders)
+            var newReservations = await _reservationRepository.GetReservationByOrderId(order.Id);
+            if (newReservations is not null)
             {
-                var newReservations = await _reservationRepository.GetReservationByOrderId(order.Id);
-                if (newReservations != null)
-                {
-                    reservations.Add(newReservations);
-                }
+                reservations.Add(newReservations);
             }
         }
 

@@ -109,7 +109,7 @@ public class ServiceService : IServiceService
         var mergedTimeSlots = new List<TimeSlot>();
         var current = allAvailableTimeSlots[0];
 
-        for (int i = 1; i < allAvailableTimeSlots.Count; i++)
+        for (var i = 1; i < allAvailableTimeSlots.Count; i++)
         {
             if (current.EndTime >= allAvailableTimeSlots[i].StartTime)
             {

@@ -1,4 +1,5 @@
 ﻿using Contracts.DTOs;
+using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
 using WebApi.Interfaces;
@@ -36,7 +37,7 @@ public class ProductService : IProductService
         var productFromDb = await _productRepository.GetById(productId);
         if (productFromDb is null)
         {
-            return null;
+            throw new NotFoundException(nameof(productFromDb), productId);
         }
 
         var product = new Product

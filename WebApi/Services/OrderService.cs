@@ -1,5 +1,6 @@
 ﻿using Contracts.DTOs;
 using Domain.Enums;
+using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
 using WebApi.Interfaces;
@@ -72,7 +73,7 @@ public class OrderService : IOrderService
                     .GetProductByOrderAndProductIds(products.OrderId, orderProductDto.ProductId);
             if (orderProductFromDb is null)
             {
-                throw new NullReferenceException("No OrderProduct found with given order and product IDs!");
+                throw new NotFoundException(nameof(orderProductFromDb), orderProductDto.ProductId);
             }
 
             if (orderProductFromDb.Amount > orderProductDto.Amount)
@@ -168,11 +169,14 @@ public class OrderService : IOrderService
         foreach (var orderProduct in orderProducts)
         {
             var product = await _productRepository.GetById(orderProduct.ProductId);
-            if (product is not null)
+            if (product is null)
             {
-                // TO-DO-MAYBE Add discount to specific order products
-                price += product.Price * orderProduct.Amount;
+                throw new NotFoundException(nameof(product), orderProduct.ProductId);
             }
+
+            // TO-DO-MAYBE Add discount to specific order products
+            price += product.Price * orderProduct.Amount;
+
         }
 
         return price;
@@ -192,13 +196,11 @@ public class OrderService : IOrderService
 
     private async Task<decimal> GetFinalOrderDiscount(Order order)
     {
-        if (order.CustomerId is not null)
-        {
-            var customer = await _customerRepository.GetById(order.CustomerId);
-            return customer is not null ? customer.LoyaltyDiscount + order.Discount : order.Discount;
-        }
+        if (order.CustomerId is null) return order.Discount;
 
-        return order.Discount;
+        var customer = await _customerRepository.GetById(order.CustomerId);
+        return customer is not null ? customer.LoyaltyDiscount + order.Discount : order.Discount;
+
     }
 
     private async Task<ReservationServiceDto> GenerateReservationServiceModel(Guid orderId)

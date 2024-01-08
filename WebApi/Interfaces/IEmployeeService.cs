@@ -7,7 +7,7 @@ namespace WebApi.Interfaces;
 
 public interface IEmployeeService
 {
-    Task<IEnumerable<TimeSlot>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod);
+    Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod);
 
     Task<IEnumerable<Employee>> ListAsync(int offset, int limit);
 
