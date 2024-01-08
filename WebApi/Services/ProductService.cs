@@ -2,6 +2,8 @@
 using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
+using Infrastructure.Repositories;
+using LanguageExt;
 using WebApi.Interfaces;
 
 namespace WebApi.Services;
@@ -15,8 +17,18 @@ public class ProductService : IProductService
         _productRepository = productRepository;
     }
 
-    public async Task<Product> Create(ProductCreateDto productDto)
+    public async Task<IEnumerable<Product>> ListAsync(int offset, int limit)
     {
+        return await _productRepository.ListAsync(offset, limit);
+    }
+
+    public async Task<Either<DomainException, Product>> Create(ProductCreateDto productDto)
+    {
+        if (productDto.Price <= 0)
+        {
+            return new ValidationException("The given product price is invalid.");
+        }
+
         var product = new Product
         {
             Id = Guid.NewGuid(),
@@ -27,17 +39,18 @@ public class ProductService : IProductService
         return await _productRepository.Add(product);
     }
 
-    public async Task<Product?> GetProductById(Guid productId)
+    public async Task<Either<DomainException, Product>> GetProductById(Guid productId)
     {
-        return await _productRepository.GetById(productId);
+        var result = await _productRepository.GetById(productId);
+        return result is null ? new NotFoundException(nameof(Product), productId) : result;
     }
 
-    public async Task<Product?> Edit(Guid productId, ProductEditDto productDto)
+    public async Task<Either<DomainException, Product>> Edit(Guid productId, ProductEditDto productDto)
     {
         var productFromDb = await _productRepository.GetById(productId);
         if (productFromDb is null)
         {
-            throw new NotFoundException(nameof(productFromDb), productId);
+            return new NotFoundException(nameof(productFromDb), productId);
         }
 
         var product = new Product
