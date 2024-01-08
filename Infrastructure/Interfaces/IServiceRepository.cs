@@ -5,6 +5,4 @@ namespace Infrastructure.Interfaces;
 public interface IServiceRepository : IGenericRepository<Service>
 {
     Task<TimeSpan> GetServiceDuration(Guid serviceId);
-
-    Task<IEnumerable<Employee>?> GetServiceEmployees(Guid serviceId);
 }

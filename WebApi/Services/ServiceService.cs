@@ -2,7 +2,6 @@
 using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
-using Infrastructure.Repositories;
 using LanguageExt;
 using WebApi.Interfaces;
 
@@ -12,14 +11,22 @@ public class ServiceService : IServiceService
 {
     private readonly IServiceRepository _serviceRepository;
     private readonly IEmployeeService _employeeService;
+    private readonly IServiceEmployeeService _serviceEmployeeService;
+    private readonly IGenericRepository<Employee> _employeeRepository;
+    private readonly IServiceEmployeeRepository _serviceEmployeeRepository;
 
     public ServiceService(
         IServiceRepository serviceRepository,
-        IEmployeeService employeeService
-    )
+        IEmployeeService employeeService,
+        IServiceEmployeeService serviceEmployeeService,
+        IGenericRepository<Employee> employeeRepository,
+        IServiceEmployeeRepository serviceEmployeeRepository)
     {
         _serviceRepository = serviceRepository;
         _employeeService = employeeService;
+        _serviceEmployeeService = serviceEmployeeService;
+        _employeeRepository = employeeRepository;
+        _serviceEmployeeRepository = serviceEmployeeRepository;
     }
 
     public async Task<Either<DomainException, Service>> GetByIdAsync(Guid serviceId)
@@ -40,7 +47,7 @@ public class ServiceService : IServiceService
     {
         if (!IsPriceValid(serviceDto.Price) || !IsDurationValid(serviceDto.Duration))
         {
-            throw new ValidationException("The given service to be created is invalid.");
+            return new ValidationException("The given service to be created is invalid.");
         }
 
         var service = new Service
@@ -49,10 +56,30 @@ public class ServiceService : IServiceService
             Name = serviceDto.Name,
             Duration = serviceDto.Duration,
             Price = serviceDto.Price,
-            Employees = serviceDto.Employees 
         };
 
         return await _serviceRepository.Add(service);
+    }
+
+    public async Task<Either<DomainException, ServiceEmployee>> AddServiceEmployeeAsync(ServiceEmployeeCreateDto serviceEmployeeDto)
+    {
+        var employee = await _employeeRepository.GetById(serviceEmployeeDto.EmployeeId);
+        var service = await _serviceRepository.GetById(serviceEmployeeDto.ServiceId);
+        if (employee is null)
+        {
+            return new NotFoundException(nameof(Employee), serviceEmployeeDto.EmployeeId);
+        }
+        if (service is null)
+        {
+            return new NotFoundException(nameof(Service), serviceEmployeeDto.ServiceId);
+        }
+
+        var serviceEmployee = new ServiceEmployee
+        {
+            EmployeeId = serviceEmployeeDto.EmployeeId,
+            ServiceId = serviceEmployeeDto.ServiceId,
+        };
+        return await _serviceEmployeeRepository.Add(serviceEmployee);
     }
 
     public async Task<Either<DomainException, Service>> UpdateAsync(Guid serviceId, ServiceEditDto serviceDto) =>
@@ -61,13 +88,12 @@ public class ServiceService : IServiceService
                 if ((serviceDto.Price is not null && !IsPriceValid(serviceDto.Price))
                     || (serviceDto.Duration is not null && !IsDurationValid(serviceDto.Duration)))
                 {
-                    throw new ValidationException("The given service edit is invalid.");
+                    return new ValidationException("The given service edit is invalid.");
                 }
 
                 service.Name = serviceDto.Name ?? service.Name;
                 service.Duration = serviceDto.Duration ?? service.Duration;
                 service.Price = serviceDto.Price ?? service.Price;
-                service.Employees = serviceDto.Employees ?? service.Employees;
                 
                 return await _serviceRepository.Update(service);
             });
@@ -81,23 +107,26 @@ public class ServiceService : IServiceService
 
     public async Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid serviceId, TimeSlot timePeriod)
     {
-        var employees = await _serviceRepository.GetServiceEmployees(serviceId);
+        var result = await _serviceEmployeeService.GetEmployeesByServiceId(serviceId);
+        var employees = new List<Employee>();
+        result.Match(
+            right => employees.AddRange(right),
+            _ => {});
 
-        if (employees == null)
+        if (employees.Count == 0)
         {
             return new NotFoundException("Employees in a service", serviceId);
         }
 
         var allAvailableTimeSlots = new List<TimeSlot>();
-
         foreach (var employee in employees)
         {
             var employeeAvailableTimeSlots = await _employeeService.GetAvailableTimeSlots(employee.Id, timePeriod);
 
             // Use Match to handle both cases
             employeeAvailableTimeSlots.Match(
-                Right: timeSlots => allAvailableTimeSlots.AddRange(timeSlots),
-                Left: _ => { } // Ignore the Left case
+                timeSlots => allAvailableTimeSlots.AddRange(timeSlots),
+                _ => { } // Ignore the Left case
             );
         }
         // Sort time slots by start time, then by end time if start times are equal

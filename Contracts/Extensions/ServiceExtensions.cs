@@ -11,6 +11,5 @@ public static class ServiceExtensions
         Name = service.Name,
         Duration = service.Duration,
         Price = service.Price,
-        Employees = service.Employees
     };
 }

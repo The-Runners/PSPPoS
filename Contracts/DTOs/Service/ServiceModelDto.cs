@@ -1,6 +1,4 @@
-﻿using Domain.Models;
-
-namespace Contracts.DTOs;
+﻿namespace Contracts.DTOs;
 
 public class ServiceModelDto
 {
@@ -11,6 +9,4 @@ public class ServiceModelDto
     public required TimeSpan Duration { get; set; }
 
     public required decimal Price { get; set; }
-
-    public IEnumerable<Employee>? Employees { get; set; }
 }
