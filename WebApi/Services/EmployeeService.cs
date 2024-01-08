@@ -43,17 +43,19 @@ public class EmployeeService : IEmployeeService
 
         var orders = await _orderRepository.GetFilteredOrders(orderFilter);
 
-        IEnumerable<Reservation>? reservations = new List<Reservation>();
-        if (orders != null)
+        if (orders is null)
         {
-            foreach (Order order in orders)
-            {
-                var newReservations = await _reservationRepository.GetReservationByOrderId(order.Id);
-                if (newReservations != null)
-                {
-                    reservations = reservations.Append(newReservations);
-                }
-            }
+            throw new NotFoundException(nameof(orders), employeeId);
+        }
+
+        IEnumerable<Reservation>? reservations = new List<Reservation>();
+
+        foreach (var order in orders)
+        {
+            var newReservations = await _reservationRepository.GetReservationByOrderId(order.Id);
+            reservations = newReservations is not null
+                ? reservations.Append(newReservations)
+                : throw new NotFoundException(nameof(order), order.Id);
         }
 
         reservations = reservations.OrderBy(r => r.StartTime).ToList();
@@ -95,7 +97,7 @@ public class EmployeeService : IEmployeeService
     {
         if (!IsStartTimeValid(employeeDto.StartTime, employeeDto.EndTime))
         {
-            throw new InvalidTimeException("Start time is later then the end time.");
+            throw new ValidationException("Start time is later then the end time.");
         }
 
         var employee = new Employee
@@ -120,9 +122,10 @@ public class EmployeeService : IEmployeeService
     public async Task<Employee?> Edit(Guid employeeId, EmployeeEditDto employeeDto)
     {
         var employeeFromDb = await _employeeRepository.GetById(employeeId);
+
         if (employeeFromDb is null)
         {
-            return null;
+            throw new NotFoundException(nameof(employeeFromDb), employeeId);
         }
 
         var employee = new Employee

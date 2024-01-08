@@ -57,12 +57,11 @@ public class ReservationService : IReservationService
 
             await _reservationRepository.Add(reservation);
 
-            //TODO: how do we process the created order
         }
         else 
         {
-            throw new TimeSlotUnavailableException($"Employee ${reservationOrderDto.EmployeeId} does not have" +
-                $" available times in ${reservationStart} - ${reservationEnd}");
+            throw new ValidationException($"Employee ${reservationOrderDto.EmployeeId} does not have" +
+                                          $" available times in ${reservationStart} - ${reservationEnd}");
         }
     }
 
@@ -88,12 +87,7 @@ public class ReservationService : IReservationService
     private async Task<bool> CanBookTimeSlot(Guid employeeId, TimeSlot bookTime)
     {
         var availableTimes = await _employeeService.GetAvailableTimeSlots(employeeId, bookTime);
-        if (availableTimes.Count() == 1)
-        {
-            return true;
-        }
-
-        return false;
+        return availableTimes.Count() == 1;
     }
 
     private async Task<DateTime> CalculateReservationEndTime(Guid serviceId, DateTime reservationStart) 
