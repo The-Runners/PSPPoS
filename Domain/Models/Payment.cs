@@ -4,11 +4,11 @@ namespace Domain.Models;
 
 public class Payment
 {
-    public Guid Id { get; init; }
+    public required Guid Id { get; init; }
 
-    public Guid OrderId { get; init; }
+    public required Guid OrderId { get; init; }
 
-    public decimal Amount { get; init; }
+    public required decimal Amount { get; init; }
 
-    public PaymentType Type { get; init; }
+    public required PaymentType Type { get; init; }
 }

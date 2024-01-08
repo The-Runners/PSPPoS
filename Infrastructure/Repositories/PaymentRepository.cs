@@ -10,9 +10,9 @@ public class PaymentRepository(AppDbContext dbContext)
 {
     private readonly AppDbContext _dbContext = dbContext;
 
-    public async ValueTask<IEnumerable<Payment>> GetOrderPaymentsAsync(Guid OrderId) =>
+    public async ValueTask<IEnumerable<Payment>> GetOrderPaymentsAsync(Guid orderId) =>
         await _dbContext
             .Payments
-            .Where(x => x.OrderId == OrderId)
+            .Where(x => x.OrderId == orderId)
             .ToListAsync();
 }

@@ -1,6 +1,6 @@
-﻿namespace Contracts.DTOs.Product;
+﻿namespace Contracts.DTOs;
 
-public class ProductCreateDto // Need to create ProductService to add products
+public class ProductCreateDto
 {
     public required string Name { get; init; }
 

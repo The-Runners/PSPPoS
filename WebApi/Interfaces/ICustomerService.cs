@@ -7,7 +7,7 @@ namespace WebApi.Interfaces;
 
 public interface ICustomerService
 {
-    Task<Either<DomainException, Customer>> AddAsync(CustomerCreateDto customer);
+    Task<Either<DomainException, Customer>> AddAsync(CustomerCreateDto customerDto);
 
     Task<Either<DomainException, Customer>> GetByIdAsync(Guid customerId);
 
@@ -15,5 +15,5 @@ public interface ICustomerService
 
     Task<Either<DomainException, Customer>> UpdateAsync(Guid id, CustomerUpdateDto customerUpdateDto);
 
-    Task<Either<DomainException, Unit>> Delete(Guid id);
+    Task<Either<DomainException, Unit>> Delete(Guid customerId);
 }

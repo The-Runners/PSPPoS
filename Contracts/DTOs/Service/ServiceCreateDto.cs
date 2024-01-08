@@ -1,9 +1,8 @@
-﻿using System;
-using ModelsEmployee = Domain.Models.Employee;
+﻿using Domain.Models;
 
-namespace Contracts.DTOs.Service;
+namespace Contracts.DTOs;
 
-public class ServiceCreateDto // Need to create ServiceService to add services
+public class ServiceCreateDto
 {
     public required string Name { get; set; }
 
@@ -11,5 +10,5 @@ public class ServiceCreateDto // Need to create ServiceService to add services
 
     public required decimal Price { get; set; }
 
-    public IEnumerable<ModelsEmployee>? Employees { get; set; }
+    public IEnumerable<Employee>? Employees { get; set; }
 }

@@ -1,6 +1,5 @@
 ﻿using Domain.Exceptions;
 using LanguageExt;
-using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Extensions;
 

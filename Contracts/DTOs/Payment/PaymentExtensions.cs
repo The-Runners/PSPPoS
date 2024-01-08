@@ -1,4 +1,4 @@
-﻿namespace Contracts.DTOs.Payment;
+﻿namespace Contracts.DTOs;
 
 public static class PaymentModelExtensions
 {

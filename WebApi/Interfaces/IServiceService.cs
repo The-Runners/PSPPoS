@@ -1,4 +1,4 @@
-﻿using Contracts.DTOs.Service;
+﻿using Contracts.DTOs;
 using Domain.Models;
 
 namespace WebApi.Interfaces;
@@ -7,11 +7,11 @@ public interface IServiceService
 {
     Task<IEnumerable<TimeSlot>> GetAvailableTimeSlots(Guid serviceId, TimeSlot timePeriod);
 
-    public Task<Service?> Get(Guid serviceId);
+    Task<Service?> GetServiceById(Guid serviceId);
 
-    public Task<Service> Create(ServiceCreateDto serviceDto);
+    Task<Service> Create(ServiceCreateDto serviceDto);
 
-    public Task<Service> Update(ServiceModelDto serviceDto);
+    Task<Service?> Edit(Guid serviceId, ServiceEditDto serviceDto);
 
-    public Task Delete(Guid serviceId);
+    Task Delete(Guid serviceId);
 }

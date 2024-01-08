@@ -1,4 +1,4 @@
-﻿using Contracts.DTOs.Employee;
+﻿using Contracts.DTOs;
 using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Filters;
@@ -93,7 +93,7 @@ public class EmployeeService : IEmployeeService
 
     public async Task<Employee> Create(EmployeeCreateDto employeeDto)
     {
-        if (IsStartTimeValid(employeeDto.StartTime, employeeDto.EndTime))
+        if (!IsStartTimeValid(employeeDto.StartTime, employeeDto.EndTime))
         {
             throw new InvalidTimeException("Start time is later then the end time.");
         }
@@ -117,9 +117,9 @@ public class EmployeeService : IEmployeeService
         return await _employeeRepository.GetById(employeeId);
     }
 
-    public async Task<Employee?> Edit(EmployeeEditDto employeeDto)
+    public async Task<Employee?> Edit(Guid employeeId, EmployeeEditDto employeeDto)
     {
-        var employeeFromDb = await _employeeRepository.GetById(employeeDto.Id);
+        var employeeFromDb = await _employeeRepository.GetById(employeeId);
         if (employeeFromDb is null)
         {
             return null;
@@ -127,7 +127,7 @@ public class EmployeeService : IEmployeeService
 
         var employee = new Employee
         {
-            Id = employeeDto.Id,
+            Id = employeeId,
             StartTime = employeeDto.StartTime ?? employeeFromDb.StartTime,
             EndTime = employeeDto.EndTime ?? employeeFromDb.EndTime,
         };

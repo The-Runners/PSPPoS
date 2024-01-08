@@ -1,4 +1,4 @@
-﻿using Contracts.DTOs.Order;
+﻿using Contracts.DTOs;
 
 namespace WebApi.Interfaces;
 

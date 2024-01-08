@@ -1,4 +1,4 @@
-﻿using Contracts.DTOs.Reservation;
+﻿using Contracts.DTOs;
 
 namespace WebApi.Interfaces;
 

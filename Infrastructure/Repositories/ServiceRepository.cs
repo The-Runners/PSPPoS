@@ -31,6 +31,7 @@ public class ServiceRepository : GenericRepository<Service>, IServiceRepository
         {
             throw new ArgumentException($"Service employee with id: {serviceId} does not exist");
         }
+
         return service.Employees;
     }
 }

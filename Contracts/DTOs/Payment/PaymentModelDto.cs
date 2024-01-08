@@ -1,6 +1,6 @@
 ﻿using Domain.Enums;
 
-namespace Contracts.DTOs.Payment;
+namespace Contracts.DTOs;
 
 public class PaymentModelDto
 {

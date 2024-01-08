@@ -1,12 +1,12 @@
 ﻿using Domain.Enums;
 
-namespace Contracts.DTOs.Payment;
+namespace Contracts.DTOs;
 
 public class PaymentCreateDto
 {
-    public Guid OrderId { get; init; }
+    public required Guid OrderId { get; init; }
 
-    public decimal Amount { get; init; }
+    public required decimal Amount { get; init; }
 
-    public PaymentType Type { get; init; }
+    public required PaymentType Type { get; init; }
 }
