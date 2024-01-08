@@ -14,11 +14,13 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         _table = _context.Set<T>();
     }
 
-    public async Task<IEnumerable<T>> ListAsync(int offset, int limit) =>
-        await _table
-        .Skip(offset)
-        .Take(limit)
-        .ToListAsync();
+    public async Task<IEnumerable<T>> ListAsync(int offset, int limit)
+    {
+        return await _table
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
+    }
 
     public async Task<T?> GetById(Guid? id)
     {

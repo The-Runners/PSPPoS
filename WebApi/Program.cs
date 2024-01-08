@@ -62,4 +62,3 @@ using var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 ctx.Database.Migrate();
 
 app.Run();
-
