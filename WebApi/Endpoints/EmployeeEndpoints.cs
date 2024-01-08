@@ -52,11 +52,11 @@ public static class EmployeeEndpoints
     }
 
     private static async Task<IResult> ListEmployees(
-        [FromServices] ICustomerService service,
+        [FromServices] IEmployeeService employeeService,
         int offset = 0,
         int limit = 100)
     {
-        var customers = await service.ListAsync(offset, limit);
-        return Results.Ok(customers.Select(x => x.ToModelDto()));
+        var employees = await employeeService.ListAsync(offset, limit);
+        return Results.Ok(employees.Select(x => x.ToModelDto()));
     }
 }

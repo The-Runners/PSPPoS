@@ -2,6 +2,7 @@
 using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
+using LanguageExt;
 using WebApi.Interfaces;
 
 namespace WebApi.Services;
@@ -20,12 +21,21 @@ public class ServiceService : IServiceService
         _employeeService = employeeService;
     }
 
-    public async Task<Service?> GetServiceById(Guid serviceId)
+    public async Task<Either<DomainException, Service>> GetByIdAsync(Guid serviceId)
     { 
-        return await _serviceRepository.GetById(serviceId);
+        var result = await _serviceRepository.GetById(serviceId);
+
+        return result is null
+            ? new NotFoundException(nameof(Customer), serviceId)
+            : result;
     }
 
-    public async Task<Service> Create(ServiceCreateDto serviceDto)
+    public async Task<IEnumerable<Service>> ListAsync(int offset, int limit)
+    {
+        return await _serviceRepository.ListAsync(offset, limit);
+    }
+
+    public async Task<Either<DomainException, Service>> AddAsync(ServiceCreateDto serviceDto)
     {
         if (!IsPriceValid(serviceDto.Price) || !IsDurationValid(serviceDto.Duration))
         {
@@ -44,63 +54,48 @@ public class ServiceService : IServiceService
         return await _serviceRepository.Add(service);
     }
 
-    public async Task<Service?> Edit(Guid serviceId, ServiceEditDto serviceDto)
-    {
-        var serviceFromDb = await _serviceRepository.GetById(serviceId);
-        if (serviceFromDb is null)
-        {
-            return null;
-        }
+    public async Task<Either<DomainException, Service>> UpdateAsync(Guid serviceId, ServiceEditDto serviceDto) =>
+        await GetByIdAsync(serviceId).BindAsync<DomainException, Service, Service>(async service =>
+            {
+                if ((serviceDto.Price is not null && !IsPriceValid(serviceDto.Price))
+                    || (serviceDto.Duration is not null && !IsDurationValid(serviceDto.Duration)))
+                {
+                    throw new ValidationException("The given service edit is invalid.");
+                }
 
-        if ((serviceDto.Price is not null && !IsPriceValid(serviceDto.Price)) 
-            || (serviceDto.Duration is not null && !IsDurationValid(serviceDto.Duration)))
-        {
-            throw new ValidationException("The given service edit is invalid.");
-        }
-
-        var service = new Service
-        {
-            Id = serviceId,
-            Name = serviceDto.Name ?? serviceFromDb.Name,
-            Duration = serviceDto.Duration ?? serviceFromDb.Duration,
-            Price = serviceDto.Price ?? serviceFromDb.Price,
-            Employees = serviceDto.Employees ?? serviceFromDb.Employees,
-        };
-
-        return await _serviceRepository.Update(service);
-    }
-
-    private static bool IsPriceValid(decimal? price)
-    {
-        return price >= 0;
-    }
-
-    private static bool IsDurationValid(TimeSpan? duration)
-    {
-        return duration?.TotalMinutes > 0;
-    }
+                service.Name = serviceDto.Name ?? service.Name;
+                service.Duration = serviceDto.Duration ?? service.Duration;
+                service.Price = serviceDto.Price ?? service.Price;
+                service.Employees = serviceDto.Employees ?? service.Employees;
+                
+                return await _serviceRepository.Update(service);
+            });
 
     public async Task Delete(Guid serviceId)
     {
         await _serviceRepository.Delete(serviceId);
     }
 
-    public async Task<IEnumerable<TimeSlot>> GetAvailableTimeSlots(Guid serviceId, TimeSlot timePeriod)
+    public async Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid serviceId, TimeSlot timePeriod)
     {
         var employees = await _serviceRepository.GetServiceEmployees(serviceId);
 
         if (employees == null)
         {
-            return Enumerable.Empty<TimeSlot>();
+            return new NotFoundException("Employees in a service", serviceId);
         }
 
         var allAvailableTimeSlots = new List<TimeSlot>();
 
-        foreach ( var employee in employees)
+        foreach (var employee in employees)
         {
             var employeeAvailableTimeSlots = await _employeeService.GetAvailableTimeSlots(employee.Id, timePeriod);
-            allAvailableTimeSlots.AddRange(employeeAvailableTimeSlots);
 
+            // Use Match to handle both cases
+            employeeAvailableTimeSlots.Match(
+                Right: timeSlots => allAvailableTimeSlots.AddRange(timeSlots),
+                Left: _ => { } // Ignore the Left case
+            );
         }
         // Sort time slots by start time, then by end time if start times are equal
         allAvailableTimeSlots = allAvailableTimeSlots.OrderBy(x => x.StartTime).ThenBy(x => x.EndTime).ToList();
@@ -130,5 +125,15 @@ public class ServiceService : IServiceService
         mergedTimeSlots.Add(current);
 
         return mergedTimeSlots;
+    }
+
+    private static bool IsPriceValid(decimal? price)
+    {
+        return price >= 0;
+    }
+
+    private static bool IsDurationValid(TimeSpan? duration)
+    {
+        return duration?.TotalMinutes > 0;
     }
 }
