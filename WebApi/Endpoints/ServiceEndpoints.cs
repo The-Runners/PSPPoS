@@ -4,6 +4,7 @@ using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 using WebApi.Interfaces;
+using WebApi.Services;
 
 namespace WebApi.Endpoints;
 
@@ -41,6 +42,13 @@ public static class ServiceEndpoints
             [FromServices] IServiceService serviceService,
             Guid id) => await serviceService
             .Delete(id)
+            .ToHttpResult());
+
+        group.MapPost("/add-service-employee", async (
+            [FromServices] IServiceService serviceService,
+            ServiceEmployeeCreateDto serviceDto) => await serviceService
+            .AddServiceEmployeeAsync(serviceDto)
+            .MapAsync(x => x.ToModelDto())
             .ToHttpResult());
 
         group.MapGet("{id}/show-available-times", async (
