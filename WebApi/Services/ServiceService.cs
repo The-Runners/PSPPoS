@@ -2,6 +2,7 @@
 using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
+using Infrastructure.Repositories;
 using LanguageExt;
 using WebApi.Interfaces;
 
@@ -71,9 +72,11 @@ public class ServiceService : IServiceService
                 return await _serviceRepository.Update(service);
             });
 
-    public async Task Delete(Guid serviceId)
+    public async Task<Either<DomainException, Unit>> Delete(Guid serviceId)
     {
-        await _serviceRepository.Delete(serviceId);
+        return await GetByIdAsync(serviceId)
+            .MapAsync(async _ => await _serviceRepository.Delete(serviceId))
+            .Map(_ => Unit.Default);
     }
 
     public async Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid serviceId, TimeSlot timePeriod)

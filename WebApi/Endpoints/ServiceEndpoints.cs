@@ -37,6 +37,12 @@ public static class ServiceEndpoints
             .MapAsync(x => x.ToModelDto())
             .ToHttpResult());
 
+        group.MapDelete("{id}", async (
+            [FromServices] IServiceService serviceService,
+            Guid id) => await serviceService
+            .Delete(id)
+            .ToHttpResult());
+
         group.MapGet("{id}/show-available-times", async (
             [FromServices] IServiceService serviceService,
             [FromBody] TimeSlot timePeriod,

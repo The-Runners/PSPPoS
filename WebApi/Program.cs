@@ -49,13 +49,12 @@ app.UseSwaggerUI(options =>
 });
 
 app.MapPaymentEndpoints();
-// Will need fixing
 //app.MapOrderEndpoints();
 app.MapProductEndpoints();
 app.MapCustomerEndpoints();
 app.MapEmployeeEndpoints();
 app.MapReservationEndpoints();
-//app.MapServiceEndpoints();
+app.MapServiceEndpoints();
 
 using var scope = app.Services.CreateScope();
 using var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();

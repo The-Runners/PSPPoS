@@ -7,8 +7,7 @@ namespace WebApi.Interfaces;
 
 public interface IServiceService
 {
-    Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid serviceId,
-        TimeSlot timePeriod);
+    Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid serviceId, TimeSlot timePeriod);
 
     Task<Either<DomainException, Service>> GetByIdAsync(Guid serviceId);
 
@@ -18,5 +17,5 @@ public interface IServiceService
 
     Task<Either<DomainException, Service>> UpdateAsync(Guid serviceId, ServiceEditDto serviceDto);
 
-    Task Delete(Guid serviceId);
+    Task<Either<DomainException, Unit>> Delete(Guid serviceId);
 }
