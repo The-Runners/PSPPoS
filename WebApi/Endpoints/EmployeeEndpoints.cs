@@ -40,11 +40,9 @@ public static class EmployeeEndpoints
         group.MapGet("{id}/show-available-times", async (
             [FromServices] IEmployeeService employeeService,
             [FromBody] TimeSlot timePeriod,
-            Guid id) =>
-        {
-            var result = await employeeService.GetAvailableTimeSlots(id, timePeriod);
-            return result;
-        });
+            Guid id) => await employeeService
+            .GetAvailableTimeSlots(id, timePeriod)
+            .ToHttpResult());
     }
 
     private static async Task<IResult> ListEmployees(
