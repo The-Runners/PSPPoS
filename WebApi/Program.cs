@@ -53,6 +53,9 @@ app.MapPaymentEndpoints();
 //app.MapOrderEndpoints();
 //app.MapProductEndpoints();
 app.MapCustomerEndpoints();
+app.MapEmployeeEndpoints();
+app.MapReservationEndpoints();
+app.MapToolEndpoints();
 
 using var scope = app.Services.CreateScope();
 using var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
