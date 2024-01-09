@@ -54,7 +54,7 @@ public class ServiceService : IServiceService
         {
             Id = Guid.NewGuid(),
             Name = serviceDto.Name,
-            Duration = serviceDto.Duration,
+            Duration = serviceDto.Duration.ToTimeSpan(),
             Price = serviceDto.Price,
         };
 
@@ -92,7 +92,7 @@ public class ServiceService : IServiceService
                 }
 
                 service.Name = serviceDto.Name ?? service.Name;
-                service.Duration = serviceDto.Duration ?? service.Duration;
+                service.Duration = serviceDto.Duration?.ToTimeSpan() ?? service.Duration;
                 service.Price = serviceDto.Price ?? service.Price;
                 
                 return await _serviceRepository.Update(service);
@@ -164,8 +164,8 @@ public class ServiceService : IServiceService
         return price >= 0;
     }
 
-    private static bool IsDurationValid(TimeSpan? duration)
+    private static bool IsDurationValid(TimeOnly? duration)
     {
-        return duration?.TotalMinutes > 0;
+        return duration?.Ticks > 0;
     }
 }

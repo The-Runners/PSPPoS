@@ -8,7 +8,7 @@ public static class EmployeeExtensions
     public static EmployeeModelDto ToModelDto(this Employee employee) => new()
     {
         Id = employee.Id,
-        StartTime = employee.StartTime,
-        EndTime = employee.EndTime,
+        StartTime = TimeOnly.FromTimeSpan(employee.StartTime),
+        EndTime = TimeOnly.FromTimeSpan(employee.EndTime),
     };
 }

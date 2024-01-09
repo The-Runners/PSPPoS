@@ -108,8 +108,8 @@ public class EmployeeService : IEmployeeService
         var employee = new Employee
         {
             Id = Guid.NewGuid(),
-            StartTime = employeeDto.StartTime,
-            EndTime = employeeDto.EndTime,
+            StartTime = employeeDto.StartTime.ToTimeSpan(),
+            EndTime = employeeDto.EndTime.ToTimeSpan(),
         };
         return await _employeeRepository.Add(employee);
     }
@@ -136,12 +136,14 @@ public class EmployeeService : IEmployeeService
         var employee = new Employee
         {
             Id = employeeId,
-            StartTime = employeeDto.StartTime ?? employeeFromDb.StartTime,
-            EndTime = employeeDto.EndTime ?? employeeFromDb.EndTime,
+            StartTime = employeeDto.StartTime?.ToTimeSpan() ?? employeeFromDb.StartTime,
+            EndTime = employeeDto.EndTime?.ToTimeSpan() ?? employeeFromDb.EndTime,
         };
 
         return await _employeeRepository.Update(employee);
     }
+
+    
 
     public async Task<Either<DomainException, Unit>> Delete(Guid employeeId)
     {
