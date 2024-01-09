@@ -103,25 +103,19 @@ public class EmployeeService : IEmployeeService
         return result is null ? new NotFoundException(nameof(Employee), employeeId) : result;
     }
 
-    public async Task<Either<DomainException, Employee>> Edit(Guid employeeId, EmployeeEditDto employeeDto)
-    {
-        var employeeFromDb = await _employeeRepository.GetById(employeeId);
-        if (employeeFromDb is null)
+    public async Task<Either<DomainException, Employee>> Edit(Guid employeeId, EmployeeEditDto employeeDto) =>
+        await GetById(employeeId).BindAsync<DomainException, Employee, Employee>(async employee =>
         {
-            return new NotFoundException(nameof(Employee), employeeId);
-        }
+            if (employee is null)
+            {
+                return new NotFoundException(nameof(Employee), employeeId);
+            }
 
-        var employee = new Employee
-        {
-            Id = employeeId,
-            StartTime = employeeDto.StartTime?.ToTimeSpan() ?? employeeFromDb.StartTime,
-            EndTime = employeeDto.EndTime?.ToTimeSpan() ?? employeeFromDb.EndTime,
-        };
+            employee.StartTime = employeeDto.StartTime?.ToTimeSpan() ?? employee.StartTime;
+            employee.EndTime = employeeDto.EndTime?.ToTimeSpan() ?? employee.EndTime;
 
-        return await _employeeRepository.Update(employee);
-    }
-
-    
+            return await _employeeRepository.Update(employee);
+        });
 
     public async Task<Either<DomainException, Unit>> Delete(Guid employeeId)
     {
