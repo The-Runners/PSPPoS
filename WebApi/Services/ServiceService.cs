@@ -107,13 +107,8 @@ public class ServiceService : IServiceService
 
     public async Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid serviceId, TimeSlot timePeriod)
     {
-        var result = await _serviceEmployeeService.GetEmployeesByServiceId(serviceId);
-        var employees = new List<Employee>();
-        result.Match(
-            right => employees.AddRange(right),
-            _ => {});
-
-        if (employees.Count == 0)
+        var employees = await _serviceEmployeeService.GetEmployeesByServiceId(serviceId);
+        if (employees is null)
         {
             return new NotFoundException("Employees in a service", serviceId);
         }
@@ -121,13 +116,16 @@ public class ServiceService : IServiceService
         var allAvailableTimeSlots = new List<TimeSlot>();
         foreach (var employee in employees)
         {
-            var employeeAvailableTimeSlots = await _employeeService.GetAvailableTimeSlots(employee.Id, timePeriod);
-
-            // Use Match to handle both cases
-            employeeAvailableTimeSlots.Match(
-                timeSlots => allAvailableTimeSlots.AddRange(timeSlots),
-                _ => { } // Ignore the Left case
+            var availableTimeSlotsResult = await _employeeService.GetAvailableTimeSlots(employee.Id, timePeriod);
+            var availableTimeSlots = new List<TimeSlot>();
+            availableTimeSlotsResult.Match(
+                Right: timeSlots =>
+                {
+                    availableTimeSlots.AddRange(timeSlots);
+                },
+                Left: _ => { }
             );
+            allAvailableTimeSlots.AddRange(availableTimeSlots);
         }
         // Sort time slots by start time, then by end time if start times are equal
         allAvailableTimeSlots = allAvailableTimeSlots.OrderBy(x => x.StartTime).ThenBy(x => x.EndTime).ToList();

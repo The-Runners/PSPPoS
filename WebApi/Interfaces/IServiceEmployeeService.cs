@@ -1,10 +1,8 @@
-﻿using Domain.Exceptions;
-using Domain.Models;
-using LanguageExt;
+﻿using Domain.Models;
 
 namespace WebApi.Interfaces;
 
 public interface IServiceEmployeeService
 {
-    Task<Either<DomainException, List<Employee>>> GetEmployeesByServiceId(Guid serviceId);
+    Task<List<Employee>?> GetEmployeesByServiceId(Guid serviceId);
 }
