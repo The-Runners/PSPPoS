@@ -39,7 +39,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         {
             foreach (OrderStatus status in filter.OrderStatuses) 
             {
-                orders.RemoveAll(o => o.Status == status);
+                orders.RemoveAll(order => !filter.OrderStatuses.Contains(order.Status));
             }
         }
 
