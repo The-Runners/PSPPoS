@@ -1,13 +1,7 @@
-﻿using Contracts;
-using Contracts.DTOs;
+﻿using Contracts.DTOs;
 using Contracts.DTOs.Order;
 using Contracts.Extensions;
-using Domain.Enums;
-using Domain.Models;
-using Infrastructure;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WebApi.Interfaces;
 
 namespace WebApi.Endpoints;

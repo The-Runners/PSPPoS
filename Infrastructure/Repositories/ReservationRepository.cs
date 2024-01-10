@@ -37,7 +37,8 @@ public class ReservationRepository : GenericRepository<Reservation>, IReservatio
     }
 
     public async Task<Reservation?> GetReservationByOrderId(Guid orderId)
-    {
-        return await _reservations.FindAsync(orderId);
+    { 
+        var reservations = await _reservations.ToListAsync();
+        return reservations.FirstOrDefault(r => r.OrderId == orderId);
     }
 }

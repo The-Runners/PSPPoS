@@ -5,7 +5,6 @@ using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
 using LanguageExt;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using WebApi.Interfaces;
 
 namespace WebApi.Services;
@@ -49,6 +48,7 @@ public class OrderService : IOrderService
             Price = 0,
             Discount = 0,
             Tip = 0,
+            CreatedAt = DateTime.UtcNow,
         };
 
         return await _orderRepository.Add(order);
@@ -124,6 +124,12 @@ public class OrderService : IOrderService
         }
     }
 
+    public async Task<Either<DomainException, Order>> GetById(Guid orderId)
+    {
+        var result = await _orderRepository.GetById(orderId);
+        return result is null ? new NotFoundException(nameof(Order), orderId) : result;
+    }
+
     public async Task<Order?> GetByIdAsync(Guid id)
     {
         return await _orderRepository.GetById(id);
@@ -177,27 +183,24 @@ public class OrderService : IOrderService
         return price;
     }
 
-    public async Task<Either<DomainException, Order>> Edit(Guid orderId, OrderEditDto orderDto)
-    {
-        var orderFromDb = await _orderRepository.GetById(orderId);
-        if (orderFromDb is null)
+    public async Task<Either<DomainException, Order>> Edit(Guid orderId, OrderEditDto orderDto) =>
+        await GetById(orderId).BindAsync<DomainException, Order, Order>(async order =>
         {
-            return new NotFoundException(nameof(Order), orderId);
-        }
+            if (order is null)
+            {
+                return new NotFoundException(nameof(Order), orderId);
+            }
 
-        var order = new Order
-        {
-            Id = orderId,
-            CustomerId = orderDto.CustomerId ?? orderFromDb.CustomerId,
-            EmployeeId = orderDto.EmployeeId ?? orderFromDb.EmployeeId,
-            Status = orderDto.Status ?? orderFromDb.Status,
-            Price = orderDto.Price ?? orderFromDb.Price,
-            Discount = orderDto.Discount ?? orderFromDb.Discount,
-            Tip = orderDto.Tip ?? orderFromDb.Tip,
-        };
+            order.CustomerId = orderDto.CustomerId ?? order.CustomerId;
+            order.EmployeeId = orderDto.EmployeeId ?? order.EmployeeId;
+            order.Status = orderDto.Status ?? order.Status;
+            order.Price = orderDto.Price ?? order.Price;
+            order.Discount = orderDto.Discount ?? order.Discount;
+            order.Tip = orderDto.Tip ?? order.Tip;
 
-        return await _orderRepository.Update(order);
-    }
+            return await _orderRepository.Update(order);
+        });
+
 
     private async Task<decimal> GetOrderProductsPrice(IEnumerable<OrderProduct> orderProducts, decimal price)
     {

@@ -15,38 +15,56 @@ public class EmployeeService : IEmployeeService
     private readonly IServiceRepository _serviceRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IReservationRepository _reservationRepository;
+    private readonly IServiceEmployeeRepository _serviceEmployeeRepository;
 
     public EmployeeService(
         IGenericRepository<Employee> employeeRepository,
         IServiceRepository serviceRepository,
         IOrderRepository orderRepository,
-        IReservationRepository reservationRepository)
+        IReservationRepository reservationRepository,
+        IServiceEmployeeRepository serviceEmployeeRepository)
     {
         _employeeRepository = employeeRepository;
         _serviceRepository = serviceRepository;
         _orderRepository = orderRepository;
         _reservationRepository = reservationRepository;
+        _serviceEmployeeRepository = serviceEmployeeRepository;
     }
 
     public async Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod)
     {
+        if (!AreDatesInSameDay(timePeriod.StartTime, timePeriod.EndTime))
+        {
+            return new ValidationException("The time period is not within the same day");
+        }
+
+        //We get employee start time and end time
+        var employee = await _employeeRepository.GetById(employeeId);
+        if (employee is null)
+        {
+            return new NotFoundException("Was not able to find employee", employeeId);
+        }
+
+        var employeeStartTime = ReplaceTimeInDateTime(timePeriod.StartTime, employee.StartTime);
+        var employeeEndTime = ReplaceTimeInDateTime(timePeriod.EndTime, employee.EndTime);
+
         var orderFilter = CreateOrderFilter(employeeId, timePeriod);
         var orders = await _orderRepository.GetFilteredOrders(orderFilter);
         if (orders is null)
         {
-            return new NotFoundException(nameof(orders), employeeId);
+            return new NotFoundException($"Was not able to find orders for {nameof(orders)}", employeeId);
         }
 
         var reservations = await GetOrderedReservationsForOrders(orders);
         var availableTimeSlots = new List<TimeSlot>();
-        var availableStart = timePeriod.StartTime;
-        if (reservations is not null)
+        var availableStart = employeeStartTime;
+        if (reservations?.Count > 0)
         {
             foreach (var reservation in reservations)
             {
                 var reservationStart = reservation.StartTime;
-                var reservationDuration = await _serviceRepository.GetServiceDuration(employeeId);
-                var reservationEnd = reservationStart.Add(reservationDuration);
+                var service = await _serviceRepository.GetById(reservation.ServiceId);
+                var reservationEnd = reservationStart.Add(service!.Duration);
                 if (reservationStart > availableStart)
                 {
                     availableTimeSlots.Add(new TimeSlot
@@ -59,16 +77,49 @@ public class EmployeeService : IEmployeeService
                 availableStart = reservationEnd;
             }
         }
-        if (availableStart < timePeriod.EndTime)
+        // Add the remaining time slot after the last reservation if any
+        if (availableStart < employeeEndTime && availableStart < timePeriod.EndTime)
         {
             availableTimeSlots.Add(new TimeSlot
             {
                 StartTime = availableStart,
-                EndTime = timePeriod.EndTime,
+                EndTime = timePeriod.EndTime < employeeEndTime ? timePeriod.EndTime : employeeEndTime, // Ensure it doesn't go beyond employee's end time
             });
         }
 
         return availableTimeSlots;
+    }
+
+    public async Task<List<Employee>?> GetEmployeesByServiceId(Guid serviceId)
+    {
+        var filteredServiceEmployees = await _serviceEmployeeRepository
+            .GetServiceEmployeesByServiceId(serviceId);
+        if (filteredServiceEmployees is null)
+        {
+            return null;
+        }
+
+        var employees = new List<Employee>();
+        foreach (var serviceEmployee in filteredServiceEmployees)
+        {
+            var employee = await _employeeRepository.GetById(serviceEmployee.EmployeeId);
+            if (employee is not null)
+            {
+                employees.Add(employee);
+            }
+        }
+
+        return employees;
+    }
+
+    private DateTime ReplaceTimeInDateTime(DateTime baseDateTime, TimeSpan newTime)
+    {
+        return baseDateTime.Date.Add(newTime);
+    }
+
+    private bool AreDatesInSameDay(DateTime date1, DateTime date2)
+    {
+        return date1.Date == date2.Date;
     }
 
     public async Task<IEnumerable<Employee>> ListAsync(int offset, int limit)

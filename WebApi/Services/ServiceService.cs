@@ -11,22 +11,13 @@ public class ServiceService : IServiceService
 {
     private readonly IServiceRepository _serviceRepository;
     private readonly IEmployeeService _employeeService;
-    private readonly IServiceEmployeeService _serviceEmployeeService;
-    private readonly IGenericRepository<Employee> _employeeRepository;
-    private readonly IServiceEmployeeRepository _serviceEmployeeRepository;
 
     public ServiceService(
         IServiceRepository serviceRepository,
-        IEmployeeService employeeService,
-        IServiceEmployeeService serviceEmployeeService,
-        IGenericRepository<Employee> employeeRepository,
-        IServiceEmployeeRepository serviceEmployeeRepository)
+        IEmployeeService employeeService)
     {
         _serviceRepository = serviceRepository;
         _employeeService = employeeService;
-        _serviceEmployeeService = serviceEmployeeService;
-        _employeeRepository = employeeRepository;
-        _serviceEmployeeRepository = serviceEmployeeRepository;
     }
 
     public async Task<Either<DomainException, Service>> GetByIdAsync(Guid serviceId)
@@ -61,27 +52,6 @@ public class ServiceService : IServiceService
         return await _serviceRepository.Add(service);
     }
 
-    public async Task<Either<DomainException, ServiceEmployee>> AddServiceEmployeeAsync(ServiceEmployeeCreateDto serviceEmployeeDto)
-    {
-        var employee = await _employeeRepository.GetById(serviceEmployeeDto.EmployeeId);
-        var service = await _serviceRepository.GetById(serviceEmployeeDto.ServiceId);
-        if (employee is null)
-        {
-            return new NotFoundException(nameof(Employee), serviceEmployeeDto.EmployeeId);
-        }
-        if (service is null)
-        {
-            return new NotFoundException(nameof(Service), serviceEmployeeDto.ServiceId);
-        }
-
-        var serviceEmployee = new ServiceEmployee
-        {
-            EmployeeId = serviceEmployeeDto.EmployeeId,
-            ServiceId = serviceEmployeeDto.ServiceId,
-        };
-        return await _serviceEmployeeRepository.Add(serviceEmployee);
-    }
-
     public async Task<Either<DomainException, Service>> UpdateAsync(Guid serviceId, ServiceEditDto serviceDto) =>
         await GetByIdAsync(serviceId).BindAsync<DomainException, Service, Service>(async service =>
             {
@@ -107,14 +77,14 @@ public class ServiceService : IServiceService
 
     public async Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid serviceId, TimeSlot timePeriod)
     {
-        var employees = await _serviceEmployeeService.GetEmployeesByServiceId(serviceId);
-        if (employees is null)
+        var employees = await _employeeService.GetEmployeesByServiceId(serviceId);
+        if (employees?.Count == 0)
         {
-            return new NotFoundException("Employees in a service", serviceId);
+            return new NotFoundException("No employees for the serviceId", serviceId);
         }
 
         var allAvailableTimeSlots = new List<TimeSlot>();
-        foreach (var employee in employees)
+        foreach (var employee in employees!)
         {
             var availableTimeSlotsResult = await _employeeService.GetAvailableTimeSlots(employee.Id, timePeriod);
             var availableTimeSlots = new List<TimeSlot>();

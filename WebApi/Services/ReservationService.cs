@@ -12,6 +12,8 @@ public class ReservationService : IReservationService
 {
     private readonly IServiceRepository _serviceRepository;
     private readonly IReservationRepository _reservationRepository;
+    private readonly IGenericRepository<Employee> _employeeRepository;
+    private readonly IGenericRepository<Customer> _customerRepository;
     private readonly IEmployeeService _employeeService;
     private readonly IOrderService _orderService;
 
@@ -19,20 +21,28 @@ public class ReservationService : IReservationService
         IServiceRepository serviceRepository,
         IReservationRepository reservationRepository,
         IEmployeeService employeeService,
-        IOrderService orderService
-    )
+        IOrderService orderService,
+        IGenericRepository<Employee> employeeRepository,
+        IGenericRepository<Customer> customerRepository)
     {
         _serviceRepository = serviceRepository;
         _reservationRepository = reservationRepository;
         _employeeService = employeeService;
         _orderService = orderService;
+        _employeeRepository = employeeRepository;
+        _customerRepository = customerRepository;
     }
 
     public async Task<Either<DomainException, Reservation>> CreateReservation(ReservationOrderDto reservationOrderDto)
     {
         var reservationStart = reservationOrderDto.TimeSlot;
-        var reservationEnd = await CalculateReservationEndTime(reservationOrderDto.ServiceId, reservationStart);
+        var serviceFromDb = await _serviceRepository.GetById(reservationOrderDto.ServiceId);
+        if (serviceFromDb is null)
+        {
+            return new NotFoundException(nameof(Service), reservationOrderDto.ServiceId);
+        }
 
+        var reservationEnd = reservationStart.Add(serviceFromDb.Duration);
         var reservationSlot = new TimeSlot
         {
             StartTime = reservationStart,
@@ -41,6 +51,18 @@ public class ReservationService : IReservationService
 
         if (await CanBookTimeSlot(reservationOrderDto.EmployeeId, reservationSlot))
         {
+            var employee = await _employeeRepository.GetById(reservationOrderDto.EmployeeId);
+            if (employee is null)
+            {
+                return new NotFoundException(nameof(Employee), reservationOrderDto.EmployeeId);
+            }
+
+            var customer = await _customerRepository.GetById(reservationOrderDto.CustomerId);
+            if (customer is null)
+            {
+                return new NotFoundException(nameof(Customer), reservationOrderDto.CustomerId);
+            }
+
             var orderDto = new EmptyOrderCreateDto
             {
                 EmployeeId = reservationOrderDto.EmployeeId,
@@ -60,28 +82,29 @@ public class ReservationService : IReservationService
         }
 
         return new ValidationException($"Employee ${reservationOrderDto.EmployeeId} does not have" +
-                                      $" available times in ${reservationStart} - ${reservationEnd}");
+                                      $" available times from ${reservationStart} - ${reservationEnd}. Reservation" +
+                                      $" not available.");
     }
 
-    public async Task<Either<DomainException, Order>> CancelReservation(Guid reservationId)
-    {
-        /* We just delete the reservation - because an order may have multiple reservations
-         * Available times are updated when requesting available times for employee
-         */
-        var reservation = await _reservationRepository.GetById(reservationId);
-        if (reservation is null)
+    public async Task<Either<DomainException, Order>> CancelReservation(Guid reservationId) =>
+        await GetById(reservationId).BindAsync<DomainException, Reservation, Order>(async reservation =>
         {
-            return new NotFoundException(nameof(Reservation), reservationId);
-        }
+            if (reservation is null)
+            {
+                return new NotFoundException(nameof(Reservation), reservationId);
+            }
 
-        await _reservationRepository.Delete(reservationId);
+            /* We just delete the reservation - because an order may have multiple reservations
+             * Available times are updated when requesting available times for employee
+             */
+            await _reservationRepository.Delete(reservationId);
 
-        var orderEdit = new OrderEditDto
-        {
-            Status = OrderStatus.Cancelled,
-        };
-        return await _orderService.Edit(reservation.OrderId, orderEdit);
-    }
+            var orderEdit = new OrderEditDto
+            {
+                Status = OrderStatus.Cancelled,
+            };
+            return await _orderService.Edit(reservation.OrderId, orderEdit);
+        });
 
     public async Task<IEnumerable<Reservation>> ListAsync(int offset, int limit)
     {
@@ -101,21 +124,32 @@ public class ReservationService : IReservationService
         availableTimesResult.Match(
             Right: timeSlots =>
             {
-                if (timeSlots.Any())
-                {
-                    check = true;
-                }
+                check = CheckAllAvailableTimeSlotsIfBookedTimeFits(timeSlots, bookTime);
             },
-            Left: _ => { }
+            Left: _ => {}
         );
-
         return check;
     }
 
-    private async Task<DateTime> CalculateReservationEndTime(Guid serviceId, DateTime reservationStart) 
+    private bool CheckAllAvailableTimeSlotsIfBookedTimeFits(IEnumerable<TimeSlot> timeSlots, TimeSlot bookTime)
     {
-        var reservationDuration = await _serviceRepository.GetServiceDuration(serviceId);
-        var reservationEnd = reservationStart.Add(reservationDuration);
-        return reservationEnd;
+        var check = false;
+        if (timeSlots.Any())
+        {
+            foreach (var availableTimeSlot in timeSlots)
+            {
+                if (IsBookTimeFitIntoAvailableTimeSlot(bookTime, availableTimeSlot))
+                {
+                    check = true;
+                }
+            }
+        }
+        return check;
+    }
+
+    private bool IsBookTimeFitIntoAvailableTimeSlot(TimeSlot bookTime, TimeSlot availableTime) 
+    {
+        return (bookTime.StartTime >= availableTime.StartTime &&
+            bookTime.EndTime <= availableTime.EndTime) ? true : false;
     }
 }
