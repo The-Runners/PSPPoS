@@ -60,9 +60,8 @@ public class EmployeeService : IEmployeeService
             foreach (var reservation in reservations)
             {
                 var reservationStart = reservation.StartTime;
-                // var reservationDuration = await _serviceRepository.GetServiceDuration(employeeId); // Need to fix to get serviceId
-                var reservationDuration = TimeSpan.MinValue; // Temp variable
-                var reservationEnd = reservationStart.Add(reservationDuration);
+                var service = await _serviceRepository.GetById(reservation.ServiceId);
+                var reservationEnd = reservationStart.Add(service!.Duration);
                 if (reservationStart > availableStart)
                 {
                     availableTimeSlots.Add(new TimeSlot
