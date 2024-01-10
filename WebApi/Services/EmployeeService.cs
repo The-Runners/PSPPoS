@@ -45,8 +45,16 @@ public class EmployeeService : IEmployeeService
             return new NotFoundException("Was not able to find employee", employeeId);
         }
 
-        var employeeStartTime = ReplaceTimeInDateTime(timePeriod.StartTime,employee.StartTime);
+        var employeeStartTime = ReplaceTimeInDateTime(timePeriod.StartTime, employee.StartTime);
         var employeeEndTime = ReplaceTimeInDateTime(timePeriod.EndTime, employee.EndTime);
+        if (employeeStartTime > timePeriod.StartTime
+            || employeeStartTime > timePeriod.EndTime
+            || employeeEndTime < timePeriod.StartTime
+            || employeeEndTime < timePeriod.EndTime)
+        {
+            return new ValidationException(
+                $"The given reservation start time is outside of the employee '{employeeId}' work hours.");
+        }
 
         var orderFilter = CreateOrderFilter(employeeId, timePeriod);
         var orders = await _orderRepository.GetFilteredOrders(orderFilter);
