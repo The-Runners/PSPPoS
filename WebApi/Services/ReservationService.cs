@@ -82,7 +82,8 @@ public class ReservationService : IReservationService
         }
 
         return new ValidationException($"Employee ${reservationOrderDto.EmployeeId} does not have" +
-                                      $" available times in ${reservationStart} - ${reservationEnd}");
+                                      $" available times from ${reservationStart} - ${reservationEnd}. Reservation" +
+                                      $" not available.");
     }
 
     public async Task<Either<DomainException, Order>> CancelReservation(Guid reservationId) =>
@@ -123,14 +124,32 @@ public class ReservationService : IReservationService
         availableTimesResult.Match(
             Right: timeSlots =>
             {
-                if (timeSlots.Any())
+                check = CheckAllAvailableTimeSlotsIfBookedTimeFits(timeSlots, bookTime);
+            },
+            Left: _ => {}
+        );
+        return check;
+    }
+
+    private bool CheckAllAvailableTimeSlotsIfBookedTimeFits(IEnumerable<TimeSlot> timeSlots, TimeSlot bookTime)
+    {
+        var check = false;
+        if (timeSlots.Any())
+        {
+            foreach (var availableTimeSlot in timeSlots)
+            {
+                if (IsBookTimeFitIntoAvailableTimeSlot(bookTime, availableTimeSlot))
                 {
                     check = true;
                 }
-            },
-            Left: _ => { }
-        );
-
+            }
+        }
         return check;
+    }
+
+    private bool IsBookTimeFitIntoAvailableTimeSlot(TimeSlot bookTime, TimeSlot availableTime) 
+    {
+        return (bookTime.StartTime >= availableTime.StartTime &&
+            bookTime.EndTime <= availableTime.EndTime) ? true : false;
     }
 }

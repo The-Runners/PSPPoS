@@ -20,16 +20,6 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
 
         var orders = await _orderRepository.ToListAsync();
 
-        if (filter.StartDate.HasValue)
-        {
-            orders = orders.Where(r => r.CreatedAt >= filter.StartDate.Value).ToList();
-        }
-
-        if (filter.EndDate.HasValue)
-        {
-            orders = orders.Where(r => r.CreatedAt <= filter.EndDate.Value).ToList();
-        }
-
         if(filter.EmployeeId.HasValue)
         {
             orders = orders.Where(r => r.EmployeeId == filter.EmployeeId.Value).ToList();
