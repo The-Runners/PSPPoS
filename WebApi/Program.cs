@@ -55,6 +55,7 @@ app.MapCustomerEndpoints();
 app.MapEmployeeEndpoints();
 app.MapReservationEndpoints();
 app.MapServiceEndpoints();
+app.MapServiceEmployeeEndpoints();
 
 using var scope = app.Services.CreateScope();
 using var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
