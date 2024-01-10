@@ -16,7 +16,9 @@ public interface IOrderService
 
     Task<decimal> CalculateOrderPrice(Order order);
 
-    Task<Order> GetByIdAsync(Guid id);
+    Task<Order?> GetByIdAsync(Guid id);
+
+    Task<Either<DomainException, Order>> GetById(Guid orderId);
 
     Task<OrderFinalDto> GenerateFinalOrderModel(Order order);
 

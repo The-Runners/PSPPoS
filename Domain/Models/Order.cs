@@ -1,5 +1,4 @@
 ﻿using Domain.Enums;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Models;
 
@@ -19,6 +18,5 @@ public class Order
 
     public required decimal Tip { get; set; }
 
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CreatedAt { get; set; }
 }
