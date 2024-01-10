@@ -30,16 +30,31 @@ public class EmployeeService : IEmployeeService
 
     public async Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod)
     {
+        if (!AreDatesInSameDay(timePeriod.StartTime, timePeriod.EndTime))
+        {
+            return new ValidationException("The time period is not within the same day");
+        }
+
+        //We get employee start time and end time
+        var employee = await _employeeRepository.GetById(employeeId);
+        if (employee is null)
+        {
+            return new NotFoundException("Was not able to find employee", employeeId);
+        }
+
+        var employeeStartTime = ReplaceTimeInDateTime(timePeriod.StartTime,employee.StartTime);
+        var employeeEndTime = ReplaceTimeInDateTime(timePeriod.EndTime, employee.EndTime);
+
         var orderFilter = CreateOrderFilter(employeeId, timePeriod);
         var orders = await _orderRepository.GetFilteredOrders(orderFilter);
         if (orders is null)
         {
-            return new NotFoundException(nameof(orders), employeeId);
+            return new NotFoundException($"Was not able to find orders for {nameof(orders)}", employeeId);
         }
 
         var reservations = await GetOrderedReservationsForOrders(orders);
         var availableTimeSlots = new List<TimeSlot>();
-        var availableStart = timePeriod.StartTime;
+        var availableStart = employeeStartTime;
         if (reservations is not null)
         {
             foreach (var reservation in reservations)
@@ -59,16 +74,27 @@ public class EmployeeService : IEmployeeService
                 availableStart = reservationEnd;
             }
         }
-        if (availableStart < timePeriod.EndTime)
+        // Add the remaining time slot after the last reservation if any
+        if (availableStart < employeeEndTime && availableStart < timePeriod.EndTime)
         {
             availableTimeSlots.Add(new TimeSlot
             {
                 StartTime = availableStart,
-                EndTime = timePeriod.EndTime,
+                EndTime = timePeriod.EndTime < employeeEndTime ? timePeriod.EndTime : employeeEndTime, // Ensure it doesn't go beyond employee's end time
             });
         }
 
         return availableTimeSlots;
+    }
+
+    private DateTime ReplaceTimeInDateTime(DateTime baseDateTime, TimeSpan newTime)
+    {
+        return baseDateTime.Date.Add(newTime);
+    }
+
+    private bool AreDatesInSameDay(DateTime date1, DateTime date2)
+    {
+        return date1.Date == date2.Date;
     }
 
     public async Task<IEnumerable<Employee>> ListAsync(int offset, int limit)
