@@ -18,6 +18,4 @@ public interface IServiceService
     Task<Either<DomainException, Service>> UpdateAsync(Guid serviceId, ServiceEditDto serviceDto);
 
     Task<Either<DomainException, Unit>> Delete(Guid serviceId);
-
-    Task<Either<DomainException, ServiceEmployee>> AddServiceEmployeeAsync(ServiceEmployeeCreateDto serviceEmployeeDto);
 }

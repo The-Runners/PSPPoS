@@ -61,27 +61,6 @@ public class ServiceService : IServiceService
         return await _serviceRepository.Add(service);
     }
 
-    public async Task<Either<DomainException, ServiceEmployee>> AddServiceEmployeeAsync(ServiceEmployeeCreateDto serviceEmployeeDto)
-    {
-        var employee = await _employeeRepository.GetById(serviceEmployeeDto.EmployeeId);
-        var service = await _serviceRepository.GetById(serviceEmployeeDto.ServiceId);
-        if (employee is null)
-        {
-            return new NotFoundException(nameof(Employee), serviceEmployeeDto.EmployeeId);
-        }
-        if (service is null)
-        {
-            return new NotFoundException(nameof(Service), serviceEmployeeDto.ServiceId);
-        }
-
-        var serviceEmployee = new ServiceEmployee
-        {
-            EmployeeId = serviceEmployeeDto.EmployeeId,
-            ServiceId = serviceEmployeeDto.ServiceId,
-        };
-        return await _serviceEmployeeRepository.Add(serviceEmployee);
-    }
-
     public async Task<Either<DomainException, Service>> UpdateAsync(Guid serviceId, ServiceEditDto serviceDto) =>
         await GetByIdAsync(serviceId).BindAsync<DomainException, Service, Service>(async service =>
             {
