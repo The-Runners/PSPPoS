@@ -45,12 +45,6 @@ public class EmployeeService : IEmployeeService
             return new NotFoundException("Was not able to find employee", employeeId);
         }
 
-        if (!IsTimeSlotWithinEmployeeWorkHours(timePeriod, employee.StartTime, employee.EndTime)) 
-        {
-            return new ValidationException($"The time period does not fit employee work hours:" +
-                $" {employee.StartTime} - {employee.EndTime}");
-        }
-
         var employeeStartTime = ReplaceTimeInDateTime(timePeriod.StartTime,employee.StartTime);
         var employeeEndTime = ReplaceTimeInDateTime(timePeriod.EndTime, employee.EndTime);
 
@@ -216,10 +210,5 @@ public class EmployeeService : IEmployeeService
         }
 
         return reservations;
-    }
-
-    private bool IsTimeSlotWithinEmployeeWorkHours(TimeSlot timeSlot, TimeSpan employeeStartTime, TimeSpan employeeEndTime)
-    {
-        return timeSlot.StartTime.TimeOfDay >= employeeStartTime && timeSlot.EndTime.TimeOfDay <= employeeEndTime;
     }
 }
