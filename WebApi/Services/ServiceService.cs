@@ -78,13 +78,13 @@ public class ServiceService : IServiceService
     public async Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid serviceId, TimeSlot timePeriod)
     {
         var employees = await _employeeService.GetEmployeesByServiceId(serviceId);
-        if (employees is null)
+        if (employees?.Count == 0)
         {
-            return new NotFoundException("Employees in a service", serviceId);
+            return new NotFoundException("No employees for the serviceId", serviceId);
         }
 
         var allAvailableTimeSlots = new List<TimeSlot>();
-        foreach (var employee in employees)
+        foreach (var employee in employees!)
         {
             var availableTimeSlotsResult = await _employeeService.GetAvailableTimeSlots(employee.Id, timePeriod);
             var availableTimeSlots = new List<TimeSlot>();

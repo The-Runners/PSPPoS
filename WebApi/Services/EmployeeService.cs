@@ -47,14 +47,6 @@ public class EmployeeService : IEmployeeService
 
         var employeeStartTime = ReplaceTimeInDateTime(timePeriod.StartTime, employee.StartTime);
         var employeeEndTime = ReplaceTimeInDateTime(timePeriod.EndTime, employee.EndTime);
-        if (employeeStartTime > timePeriod.StartTime
-            || employeeStartTime > timePeriod.EndTime
-            || employeeEndTime < timePeriod.StartTime
-            || employeeEndTime < timePeriod.EndTime)
-        {
-            return new ValidationException(
-                $"The given reservation start time is outside of the employee '{employeeId}' work hours.");
-        }
 
         var orderFilter = CreateOrderFilter(employeeId, timePeriod);
         var orders = await _orderRepository.GetFilteredOrders(orderFilter);
@@ -66,7 +58,7 @@ public class EmployeeService : IEmployeeService
         var reservations = await GetOrderedReservationsForOrders(orders);
         var availableTimeSlots = new List<TimeSlot>();
         var availableStart = employeeStartTime;
-        if (reservations is not null)
+        if (reservations?.Count > 0)
         {
             foreach (var reservation in reservations)
             {
