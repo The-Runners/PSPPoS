@@ -11,22 +11,13 @@ public class ServiceService : IServiceService
 {
     private readonly IServiceRepository _serviceRepository;
     private readonly IEmployeeService _employeeService;
-    private readonly IServiceEmployeeService _serviceEmployeeService;
-    private readonly IGenericRepository<Employee> _employeeRepository;
-    private readonly IServiceEmployeeRepository _serviceEmployeeRepository;
 
     public ServiceService(
         IServiceRepository serviceRepository,
-        IEmployeeService employeeService,
-        IServiceEmployeeService serviceEmployeeService,
-        IGenericRepository<Employee> employeeRepository,
-        IServiceEmployeeRepository serviceEmployeeRepository)
+        IEmployeeService employeeService)
     {
         _serviceRepository = serviceRepository;
         _employeeService = employeeService;
-        _serviceEmployeeService = serviceEmployeeService;
-        _employeeRepository = employeeRepository;
-        _serviceEmployeeRepository = serviceEmployeeRepository;
     }
 
     public async Task<Either<DomainException, Service>> GetByIdAsync(Guid serviceId)
@@ -86,7 +77,7 @@ public class ServiceService : IServiceService
 
     public async Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid serviceId, TimeSlot timePeriod)
     {
-        var employees = await _serviceEmployeeService.GetEmployeesByServiceId(serviceId);
+        var employees = await _employeeService.GetEmployeesByServiceId(serviceId);
         if (employees is null)
         {
             return new NotFoundException("Employees in a service", serviceId);

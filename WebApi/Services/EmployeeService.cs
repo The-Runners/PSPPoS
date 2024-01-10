@@ -15,17 +15,20 @@ public class EmployeeService : IEmployeeService
     private readonly IServiceRepository _serviceRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IReservationRepository _reservationRepository;
+    private readonly IServiceEmployeeRepository _serviceEmployeeRepository;
 
     public EmployeeService(
         IGenericRepository<Employee> employeeRepository,
         IServiceRepository serviceRepository,
         IOrderRepository orderRepository,
-        IReservationRepository reservationRepository)
+        IReservationRepository reservationRepository,
+        IServiceEmployeeRepository serviceEmployeeRepository)
     {
         _employeeRepository = employeeRepository;
         _serviceRepository = serviceRepository;
         _orderRepository = orderRepository;
         _reservationRepository = reservationRepository;
+        _serviceEmployeeRepository = serviceEmployeeRepository;
     }
 
     public async Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod)
@@ -91,6 +94,28 @@ public class EmployeeService : IEmployeeService
         }
 
         return availableTimeSlots;
+    }
+
+    public async Task<List<Employee>?> GetEmployeesByServiceId(Guid serviceId)
+    {
+        var filteredServiceEmployees = await _serviceEmployeeRepository
+            .GetServiceEmployeesByServiceId(serviceId);
+        if (filteredServiceEmployees is null)
+        {
+            return null;
+        }
+
+        var employees = new List<Employee>();
+        foreach (var serviceEmployee in filteredServiceEmployees)
+        {
+            var employee = await _employeeRepository.GetById(serviceEmployee.EmployeeId);
+            if (employee is not null)
+            {
+                employees.Add(employee);
+            }
+        }
+
+        return employees;
     }
 
     private DateTime ReplaceTimeInDateTime(DateTime baseDateTime, TimeSpan newTime)

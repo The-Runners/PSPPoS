@@ -7,9 +7,9 @@ namespace WebApi.Interfaces;
 
 public interface IServiceEmployeeService
 {
-    Task<List<Employee>?> GetEmployeesByServiceId(Guid serviceId);
+    Task<IEnumerable<ServiceEmployee>?> GetServiceEmployeesByEmployeeId(Guid employeeId);
 
-    Task<List<Employee>?> GetEmployeesByEmployeeId(Guid employeeId);
+    Task<IEnumerable<ServiceEmployee>?> GetServiceEmployeesByServiceId(Guid serviceId);
 
     Task<IEnumerable<ServiceEmployee>> ListAsync(int offset, int limit);
 

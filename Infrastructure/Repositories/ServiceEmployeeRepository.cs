@@ -24,7 +24,7 @@ public class ServiceEmployeeRepository : GenericRepository<ServiceEmployee>, ISe
     public async Task<IEnumerable<ServiceEmployee>?> GetServiceEmployeesByEmployeeId(Guid employeeId)
     {
         var serviceEmployees = await _serviceEmployees.ToListAsync();
-        return serviceEmployees.Where(x => x.ServiceId == employeeId).ToList();
+        return serviceEmployees.Where(x => x.EmployeeId == employeeId).ToList();
     }
 
     public async Task<ServiceEmployee?> GetServiceEmployeeByCompoundKey(Guid serviceId, Guid employeeId)

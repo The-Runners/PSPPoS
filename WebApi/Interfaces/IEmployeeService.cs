@@ -9,6 +9,8 @@ public interface IEmployeeService
 {
     Task<Either<DomainException, IEnumerable<TimeSlot>>> GetAvailableTimeSlots(Guid employeeId, TimeSlot timePeriod);
 
+    Task<List<Employee>?> GetEmployeesByServiceId(Guid serviceId);
+
     Task<IEnumerable<Employee>> ListAsync(int offset, int limit);
 
     Task<Either<DomainException, Employee>> Create(EmployeeCreateDto employeeDto);

@@ -10,24 +10,22 @@ public static class ServiceEmployeeEndpoints
 {
     public static void MapServiceEmployeeEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/ServiceEmployee").WithTags("ServiceEmployees");
+        var group = app.MapGroup("/serviceEmployee").WithTags("ServiceEmployees");
 
         group.MapGet(string.Empty, ListServiceEmployees);
 
-        //todo: MOVE TO EMPLOYEE
-        group.MapGet("/list-by-serviceId", ListServiceEmployeesByServiceId);
+        group.MapGet("/list-by-employeeId/{id}", ListServiceEmployeesByEmployeeId);
 
-        //TODO: fix REUTRN SERVICE
-        group.MapGet("/list-by-employeeId", ListServiceEmployeesByEmployeeId);
+        group.MapGet("/list-by-serviceId/{id}", ListServiceEmployeesByServiceId);
 
-        group.MapPost("/add-service-employee", async (
+        group.MapPost("/assign-employee-to-service", async (
             [FromServices] IServiceEmployeeService serviceEmployeeService,
             ServiceEmployeeCreateDto serviceEmployeeDto) => await serviceEmployeeService
             .AddServiceEmployeeAsync(serviceEmployeeDto)
             .MapAsync(x => x.ToModelDto())
             .ToHttpResult());
 
-        group.MapDelete("{serviceId}/{employeeId}", async (
+        group.MapDelete("/serviceId/{serviceId}/employeeId/{employeeId}", async (
             [FromServices] IServiceEmployeeService serviceEmployeeService,
             Guid serviceId,
             Guid employeeId) => await serviceEmployeeService
@@ -44,23 +42,23 @@ public static class ServiceEmployeeEndpoints
         return Results.Ok(services.Select(x => x.ToModelDto()));
     }
 
-    private static async Task<IResult> ListServiceEmployeesByServiceId(
+    private static async Task<IResult> ListServiceEmployeesByEmployeeId(
         [FromServices] IServiceEmployeeService serviceEmployeeService,
-        Guid serviceId,
+        Guid id,
         int offset = 0,
         int limit = 100)
     {
-        var serviceEmployees = await serviceEmployeeService.GetEmployeesByServiceId(serviceId);
+        var serviceEmployees = await serviceEmployeeService.GetServiceEmployeesByEmployeeId(id);
         return Results.Ok(serviceEmployees?.Select(x => x.ToModelDto()));
     }
 
-    private static async Task<IResult> ListServiceEmployeesByEmployeeId(
+    private static async Task<IResult> ListServiceEmployeesByServiceId(
         [FromServices] IServiceEmployeeService serviceEmployeeService,
-        Guid employeeId,
+        Guid id,
         int offset = 0,
         int limit = 100)
     {
-        var serviceEmployees = await serviceEmployeeService.GetEmployeesByEmployeeId(employeeId);
+        var serviceEmployees = await serviceEmployeeService.GetServiceEmployeesByServiceId(id);
         return Results.Ok(serviceEmployees?.Select(x => x.ToModelDto()));
     }
 }

@@ -23,53 +23,19 @@ public class ServiceEmployeeService : IServiceEmployeeService
         _serviceRepository = serviceRepository;
     }
 
-    //TODO: maybe add into employee service
-    public async Task<List<Employee>?> GetEmployeesByServiceId(Guid serviceId)
+    public async Task<IEnumerable<ServiceEmployee>?> GetServiceEmployeesByEmployeeId(Guid employeeId)
     {
-        var filteredServiceEmployees = await _serviceEmployeeRepository
-            .GetServiceEmployeesByServiceId(serviceId);
-        if (filteredServiceEmployees is null)
-        {
-            return null;
-        }
-
-        var employees = new List<Employee>();
-        foreach (var serviceEmployee in filteredServiceEmployees)
-        {
-            var employee = await _employeeRepository.GetById(serviceEmployee.EmployeeId);
-            if (employee is not null)
-            {
-                employees.Add(employee);
-            }
-        }
-
-        return employees;
-    }
-
-    //TODO: maybe add into employee service
-    public async Task<List<Employee>?> GetEmployeesByEmployeeId(Guid employeeId)
-    {
-        var filteredServiceEmployees = await _serviceEmployeeRepository
+        return await _serviceEmployeeRepository
             .GetServiceEmployeesByEmployeeId(employeeId);
-        if (filteredServiceEmployees is null)
-        {
-            return null;
-        }
-
-        var employees = new List<Employee>();
-        foreach (var serviceEmployee in filteredServiceEmployees)
-        {
-            var employee = await _employeeRepository.GetById(serviceEmployee.EmployeeId);
-            if (employee is not null)
-            {
-                employees.Add(employee);
-            }
-        }
-
-        return employees;
     }
 
-    public async Task<Either<DomainException, ServiceEmployee>> GetByIdAsync(Guid serviceId, Guid employeeId)
+    public async Task<IEnumerable<ServiceEmployee>?> GetServiceEmployeesByServiceId(Guid serviceId)
+    {
+        return await _serviceEmployeeRepository
+            .GetServiceEmployeesByServiceId(serviceId);
+    }
+
+    public async Task<Either<DomainException, ServiceEmployee>> GetByCompoundKeyAsync(Guid serviceId, Guid employeeId)
     {
         var result = await _serviceEmployeeRepository
             .GetServiceEmployeeByCompoundKey(serviceId, employeeId);
@@ -106,7 +72,7 @@ public class ServiceEmployeeService : IServiceEmployeeService
     }
 
     public async Task<Either<DomainException, Unit>> Delete(Guid serviceId, Guid employeeId) =>
-        await GetByIdAsync(serviceId, employeeId)
+        await GetByCompoundKeyAsync(serviceId, employeeId)
             .MapAsync(async serviceEmployee => await _serviceEmployeeRepository.DeleteGivenServiceEmployee(serviceEmployee))
             .Map(_ => Unit.Default);
 
