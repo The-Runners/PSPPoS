@@ -12,13 +12,16 @@ public class PaymentService : IPaymentService
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IPaymentRepository _paymentRepository;
+    private readonly IOrderService _orderService;
 
     public PaymentService(
         IOrderRepository orderRepository,
-        IPaymentRepository paymentRepository)
+        IPaymentRepository paymentRepository,
+        IOrderService orderService)
     {
         _orderRepository = orderRepository;
         _paymentRepository = paymentRepository;
+        _orderService = orderService;
     }
 
     public async Task<Either<DomainException, Payment>> AddPaymentAsync(PaymentCreateDto model) =>
@@ -60,10 +63,11 @@ public class PaymentService : IPaymentService
 
         var paidAmount = await GetPaidAmountAsync(model.OrderId);
 
-        if (paidAmount == order.Price)
+        var orderPrice = await _orderService.CalculateOrderPrice(order);
+        if (paidAmount == orderPrice)
             return new ValidationException("Order is already paid for.");
 
-        if (order.Price - paidAmount < model.Amount)
+        if (orderPrice - paidAmount < model.Amount)
             return new ValidationException("Sum of payments has to equal order price.");
 
         return Option<DomainException>.None;

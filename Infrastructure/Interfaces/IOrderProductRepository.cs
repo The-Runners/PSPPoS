@@ -9,4 +9,6 @@ public interface IOrderProductRepository : IGenericRepository<OrderProduct>
     Task<OrderProduct?> GetProductByOrderAndProductIds(Guid orderId, Guid productId);
 
     Task DeleteProductByOrderAndProductIds(Guid orderId, Guid productId);
+
+    Task RemoveOrderProductsAsync(Guid orderId);
 }

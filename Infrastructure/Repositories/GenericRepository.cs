@@ -22,7 +22,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
             .ToListAsync();
     }
 
-    public async Task<T?> GetById(Guid? id)
+    public async Task<T?> GetById(Guid id)
     {
         return await _table.FindAsync(id);
     }
@@ -50,6 +50,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         }
 
         _table.Remove(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task AddRangeAsync(IEnumerable<T> entities)
+    {
+        await _table.AddRangeAsync(entities);
         await _context.SaveChangesAsync();
     }
 

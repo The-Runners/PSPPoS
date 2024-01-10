@@ -1,9 +1,11 @@
 ﻿using Contracts.DTOs;
+using Contracts.DTOs.Order;
 using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure.Interfaces;
 using LanguageExt;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using WebApi.Interfaces;
 
 namespace WebApi.Services;
@@ -26,7 +28,7 @@ public class OrderService : IOrderService
         IGenericRepository<Product> productRepository,
         IGenericRepository<Customer> customerRepository,
         IOrderProductService orderProductService)
-{
+    {
         _orderRepository = orderRepository;
         _orderProductRepository = orderProductRepository;
         _reservationRepository = reservationRepository;
@@ -34,7 +36,7 @@ public class OrderService : IOrderService
         _productRepository = productRepository;
         _customerRepository = customerRepository;
         _orderProductService = orderProductService;
-}
+    }
 
     public async Task<Order> CreateEmptyOrder(EmptyOrderCreateDto orderDto)
     {
@@ -50,6 +52,33 @@ public class OrderService : IOrderService
         };
 
         return await _orderRepository.Add(order);
+    }
+
+    public async Task<IEnumerable<Order>> GetAsync(int offset, int limit) =>
+        await _orderRepository.ListAsync(offset, limit);
+
+    public async Task<OrderFinalDto> UpdateOrderAsync(Guid id, OrderUpdateDto updateDto)
+    {
+        var order = await _orderRepository.GetById(id);
+
+        if (order is null)
+            throw new NotFoundException(nameof(Order), id);
+
+        order.Tip = updateDto.Tip;
+        order.Discount = updateDto.Discount;
+        order.Status = updateDto.Status;
+        order.CustomerId = updateDto.CustomerId;
+        order.EmployeeId = updateDto.EmployeeId;
+
+        await _orderProductRepository.RemoveOrderProductsAsync(id);
+        await _orderProductRepository.AddRangeAsync(updateDto.Products.Select(x => new OrderProduct
+        {
+            Amount = x.Amount,
+            OrderId = id,
+            ProductId = x.ProductId,
+        }));
+
+        return await GenerateFinalOrderModel(order);
     }
 
     public async Task AddProductsToOrder(OrderProductsDto products)
@@ -93,6 +122,11 @@ public class OrderService : IOrderService
                     .DeleteProductByOrderAndProductIds(products.OrderId, orderProductFromDb.ProductId);
             }
         }
+    }
+
+    public async Task<Order?> GetByIdAsync(Guid id)
+    {
+        return await _orderRepository.GetById(id);
     }
 
     public async Task<OrderFinalDto> GenerateFinalOrderModel(Order order)
@@ -176,7 +210,7 @@ public class OrderService : IOrderService
             }
 
             // TO-DO-MAYBE Add discount to specific order products
-            price += product.Price * orderProduct.Amount;
+            price += (1 + product.Tax) * product.Price * orderProduct.Amount;
 
         }
 
@@ -199,9 +233,8 @@ public class OrderService : IOrderService
     {
         if (order.CustomerId is null) return order.Discount;
 
-        var customer = await _customerRepository.GetById(order.CustomerId);
+        var customer = await _customerRepository.GetById(order.CustomerId.Value);
         return customer is not null ? customer.LoyaltyDiscount + order.Discount : order.Discount;
-
     }
 
     private async Task<ReservationServiceDto> GenerateReservationServiceModel(Guid orderId)

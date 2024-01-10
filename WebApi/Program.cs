@@ -49,7 +49,7 @@ app.UseSwaggerUI(options =>
 });
 
 app.MapPaymentEndpoints();
-//app.MapOrderEndpoints();
+app.MapOrderEndpoints();
 app.MapProductEndpoints();
 app.MapCustomerEndpoints();
 app.MapEmployeeEndpoints();

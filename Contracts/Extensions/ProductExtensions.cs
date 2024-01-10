@@ -10,5 +10,6 @@ public static class ProductExtensions
         Id = product.Id,
         Name = product.Name,
         Price = product.Price,
+        Tax = product.Tax
     };
 }

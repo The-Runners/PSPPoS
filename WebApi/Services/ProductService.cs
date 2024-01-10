@@ -33,6 +33,7 @@ public class ProductService : IProductService
             Id = Guid.NewGuid(),
             Name = productDto.Name,
             Price = productDto.Price,
+            Tax = productDto.Tax,
         };
 
         return await _productRepository.Add(product);

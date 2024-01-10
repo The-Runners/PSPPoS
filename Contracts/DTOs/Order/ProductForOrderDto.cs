@@ -9,4 +9,6 @@ public class ProductForOrderDto
     public required int Amount { get; init; }
 
     public required decimal UnitPrice { get; init; }
+
+    public required decimal Tax { get; init; }
 }

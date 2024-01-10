@@ -37,4 +37,9 @@ public class OrderProductRepository : GenericRepository<OrderProduct>, IOrderPro
         _orderProducts.Remove(orderProduct);
         await _context.SaveChangesAsync();
     }
+
+    public async Task RemoveOrderProductsAsync(Guid orderId) =>
+        await _orderProducts
+        .Where(x => x.OrderId == orderId)
+        .ExecuteDeleteAsync();
 }

@@ -26,7 +26,7 @@ public class OrderProductService : IOrderProductService
         {
             throw new NotFoundException(nameof(orderProducts), orderId);
         }
-        
+
         return await GenerateModels(orderProducts);
     }
 
@@ -47,6 +47,7 @@ public class OrderProductService : IOrderProductService
                 Name = product.Name,
                 Amount = orderProduct.Amount,
                 UnitPrice = product.Price,
+                Tax = product.Tax,
             };
             orderProductViewModels.Add(orderProductModel);
 
