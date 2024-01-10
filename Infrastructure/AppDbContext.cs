@@ -11,7 +11,7 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
 
     public required DbSet<Order> Orders { get; init; }
 
-    public required DbSet<Employee> Reservations { get; init; }
+    public required DbSet<Reservation> Reservations { get; init; }
 
     public required DbSet<OrderProduct> OrderProducts { get; init; }
 

@@ -96,8 +96,20 @@ public class ReservationService : IReservationService
 
     private async Task<bool> CanBookTimeSlot(Guid employeeId, TimeSlot bookTime)
     {
-        var availableTimes = await _employeeService.GetAvailableTimeSlots(employeeId, bookTime);
-        return availableTimes.Count() == 1;
+        var availableTimesResult = await _employeeService.GetAvailableTimeSlots(employeeId, bookTime);
+        var check = false;
+        availableTimesResult.Match(
+            Right: timeSlots =>
+            {
+                if (timeSlots.Any())
+                {
+                    check = true;
+                }
+            },
+            Left: _ => { }
+        );
+
+        return check;
     }
 
     private async Task<DateTime> CalculateReservationEndTime(Guid serviceId, DateTime reservationStart) 

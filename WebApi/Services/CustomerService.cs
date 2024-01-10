@@ -25,6 +25,7 @@ public class CustomerService : ICustomerService
         {
             Id = Guid.NewGuid(),
             LoyaltyDiscount = customerCreateDto.LoyaltyDiscount,
+            CreatedAt = DateTimeOffset.UtcNow,
         });
     }
 

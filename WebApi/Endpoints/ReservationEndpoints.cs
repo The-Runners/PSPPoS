@@ -15,8 +15,8 @@ public static class ReservationEndpoints
         group.MapGet(string.Empty, ListReservations);
 
         group.MapGet("{id}", (
-            [FromServices] IReservationService service,
-            Guid id) => service
+            [FromServices] IReservationService reservationService,
+            Guid id) => reservationService
             .GetById(id)
             .MapAsync(x => x.ToModelDto())
             .ToHttpResult());
@@ -30,10 +30,10 @@ public static class ReservationEndpoints
 
         group.MapPost("/create", async (
             [FromServices] IReservationService reservationService,
-            ReservationOrderDto reservationDto) =>
-        {
-            await reservationService.CreateReservation(reservationDto);
-        });
+            ReservationOrderDto reservationDto) => await reservationService
+            .CreateReservation(reservationDto)
+            .MapAsync(x => x.ToModelDto())
+            .ToHttpResult());
     }
 
     private static async Task<IResult> ListReservations(

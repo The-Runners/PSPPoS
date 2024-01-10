@@ -44,23 +44,19 @@ public class ProductService : IProductService
         return result is null ? new NotFoundException(nameof(Product), productId) : result;
     }
 
-    public async Task<Either<DomainException, Product>> Edit(Guid productId, ProductEditDto productDto)
-    {
-        var productFromDb = await _productRepository.GetById(productId);
-        if (productFromDb is null)
+    public async Task<Either<DomainException, Product>> Edit(Guid productId, ProductEditDto productDto) =>
+        await GetProductById(productId).BindAsync<DomainException, Product, Product>(async product =>
         {
-            return new NotFoundException(nameof(productFromDb), productId);
-        }
+            if (product is null)
+            {
+                return new NotFoundException(nameof(Product), productId);
+            }
 
-        var product = new Product
-        {
-            Id = productId,
-            Name = productDto.Name ?? productFromDb.Name,
-            Price = productDto.Price ?? productFromDb.Price,
-        };
+            product.Name = productDto.Name ?? product.Name;
+            product.Price = productDto.Price ?? product.Price;
 
-        return await _productRepository.Update(product);
-    }
+            return await _productRepository.Update(product);
+        });
 
     public async Task<Either<DomainException, Unit>> Delete(Guid productId)
     {

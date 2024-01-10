@@ -9,7 +9,7 @@ public static class ServiceExtensions
     {
         Id = service.Id,
         Name = service.Name,
-        Duration = service.Duration,
+        Duration = TimeOnly.FromTimeSpan(service.Duration),
         Price = service.Price,
     };
 }

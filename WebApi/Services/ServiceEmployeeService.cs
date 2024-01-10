@@ -1,7 +1,5 @@
-﻿using Domain.Exceptions;
-using Domain.Models;
+﻿using Domain.Models;
 using Infrastructure.Interfaces;
-using LanguageExt;
 using WebApi.Interfaces;
 
 namespace WebApi.Services;
@@ -19,13 +17,13 @@ public class ServiceEmployeeService : IServiceEmployeeService
         _employeeRepository = employeeRepository;
     }
 
-    public async Task<Either<DomainException, List<Employee>>> GetEmployeesByServiceId(Guid serviceId)
+    public async Task<List<Employee>?> GetEmployeesByServiceId(Guid serviceId)
     {
         var filteredServiceEmployees = await _serviceEmployeeRepository
             .GetServiceEmployeesByServiceId(serviceId);
         if (filteredServiceEmployees is null)
         {
-            return new NotFoundException($"{nameof(filteredServiceEmployees)} with serviceId", serviceId);
+            return null;
         }
 
         var employees = new List<Employee>();
